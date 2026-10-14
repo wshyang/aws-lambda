@@ -239,6 +239,7 @@ strings raised as `ConfigError` and asserted in tests.
 | `retry_window_end` not `HH:MM` | `retry_window_end must be HH:MM in Singapore time, got '<value>'` |
 | `HTTP_TIMEOUT_SECONDS` not a positive integer | `HTTP_TIMEOUT_SECONDS must be a positive integer, got '<value>'` |
 | `HTTP_MAX_ATTEMPTS` not a positive integer | `HTTP_MAX_ATTEMPTS must be a positive integer, got '<value>'` |
+| `HTTP_DEADLINE_SECONDS` not a positive integer | `HTTP_DEADLINE_SECONDS must be a positive integer, got '<value>'` |
 | payload `run_mode` unknown | `Unsupported run_mode: '<value>'` |
 | payload `target_month` unparseable | `target_month must be YYYY-MM, got '<value>'` |
 
@@ -258,9 +259,10 @@ Missing table during a probe is **not** a raised error: it becomes
 | `AWS_REGION` | injected by Lambda | Region for SES/SSM clients |
 | `CONFIGURATION_SET` | empty | SES configuration set name, when deployed |
 | `RETRY_WINDOW_END_SGT` | `20:00` | FR-3.4 final-attempt boundary, Singapore time `HH:MM` |
-| `HTTP_TIMEOUT_SECONDS` | `30` | Per-request timeout |
+| `HTTP_TIMEOUT_SECONDS` | `20` | Per-request timeout |
 | `HTTP_MAX_ATTEMPTS` | `3` | Attempts per URL per invocation |
 | `HTTP_BACKOFF_SECONDS` | `2` | Base of the linear backoff between attempts |
+| `HTTP_DEADLINE_SECONDS` | `30` | HTTP budget for the whole invocation, across both URLs |
 | `USER_AGENT` | `sap-patch-day-notifier/1 (aws-lambda; +https://support.sap.com)` | Identifies us to SAP politely |
 | `DRY_RUN` | `false` | FR-3.9 |
 | `LOG_LEVEL` | `INFO` | Logging verbosity |
@@ -329,7 +331,7 @@ CloudFormation parameters: `FunctionName`, `ArtifactBucket`, `ArtifactKey`,
 | NFR-1 | A monthly run costs effectively nothing: one Lambda invocation plus retries, no provisioned capacity, no always-on services. |
 | NFR-2 | Least privilege: the function's policy grants only `logs:CreateLogStream`/`PutLogEvents` on its own group, `ssm:GetParameter*` on the config path, `ssm:PutParameter` on the state path, `ses:SendEmail`/`SendRawEmail` on the sender identity, and `xray:PutTraceSegments` when tracing is on. |
 | NFR-3 | No credentials, account IDs or real addresses in the repository. |
-| NFR-4 | Timeout 60 s is enough for up to 3 attempts × 2 URLs at 30 s each; the client enforces a per-invocation deadline lower than the function timeout. |
+| NFR-4 | The function timeout is 60 s; the HTTP client enforces a 30 s deadline across both URLs (`HTTP_DEADLINE_SECONDS`), so the worst case is 30 s + one 20 s request = 50 s and the run ends with a result rather than a Lambda timeout. |
 | NFR-5 | The scrapers are read-only, identify themselves in `User-Agent`, and make at most 2 requests per attempt with linear backoff — no crawling, no concurrency. |
 | NFR-6 | Failure to reach SAP never produces a false "nothing published" claim (FR-3.5). |
 | NFR-7 | The system is idempotent per month; a repeated or missed scheduled invocation cannot duplicate or lose a month. |

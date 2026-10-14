@@ -28,8 +28,9 @@ def test_defaults_are_the_documented_ones() -> None:
     assert config.dry_run is False
     assert config.config_path == "/sap-security-patch-day/"
     assert config.state_path == "/sap-security-patch-day/state/"
-    assert config.http.timeout_seconds == 30
+    assert config.http.timeout_seconds == 20
     assert config.http.max_attempts == 3
+    assert config.http.deadline_seconds == 30
 
 
 def test_missing_sender_uses_the_documented_message() -> None:
@@ -135,6 +136,11 @@ def test_retry_window_end_is_parsed() -> None:
         ),
         ("HTTP_TIMEOUT_SECONDS", "0", "HTTP_TIMEOUT_SECONDS must be a positive integer, got '0'"),
         ("HTTP_MAX_ATTEMPTS", "-1", "HTTP_MAX_ATTEMPTS must be a positive integer, got '-1'"),
+        (
+            "HTTP_DEADLINE_SECONDS",
+            "0",
+            "HTTP_DEADLINE_SECONDS must be a positive integer, got '0'",
+        ),
         (
             "HTTP_BACKOFF_SECONDS",
             "soon",

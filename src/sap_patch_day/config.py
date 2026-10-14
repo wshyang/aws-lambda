@@ -165,11 +165,14 @@ def _boolean(raw: str, message: str) -> bool:
 def _http_policy(environ: Mapping[str, str]) -> HttpPolicy:
     return HttpPolicy(
         timeout_seconds=_positive_int(
-            environ.get("HTTP_TIMEOUT_SECONDS"), 30, "HTTP_TIMEOUT_SECONDS"
+            environ.get("HTTP_TIMEOUT_SECONDS"), 20, "HTTP_TIMEOUT_SECONDS"
         ),
         max_attempts=_positive_int(environ.get("HTTP_MAX_ATTEMPTS"), 3, "HTTP_MAX_ATTEMPTS"),
         backoff_seconds=_positive_float(
             environ.get("HTTP_BACKOFF_SECONDS"), 2.0, "HTTP_BACKOFF_SECONDS"
+        ),
+        deadline_seconds=_positive_int(
+            environ.get("HTTP_DEADLINE_SECONDS"), 30, "HTTP_DEADLINE_SECONDS"
         ),
         user_agent=_text(environ.get("USER_AGENT"), DEFAULT_USER_AGENT),
     )

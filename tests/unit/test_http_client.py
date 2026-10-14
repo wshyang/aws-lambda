@@ -69,8 +69,26 @@ class RecordingSleeper:
 
 
 def policy(**overrides: object) -> HttpPolicy:
-    base = {"timeout_seconds": 30, "max_attempts": 3, "backoff_seconds": 2.0}
+    base = {
+        "timeout_seconds": 20,
+        "max_attempts": 3,
+        "backoff_seconds": 2.0,
+        "deadline_seconds": 30,
+    }
     return HttpPolicy(**{**base, **overrides})  # type: ignore[arg-type]
+
+
+class StalledClock:
+    """A monotonic clock that only moves when the client sleeps on it."""
+
+    def __init__(self) -> None:
+        self.now = 0.0
+
+    def __call__(self) -> float:
+        return self.now
+
+    def advance(self, seconds: float) -> None:
+        self.now += seconds
 
 
 def test_successful_get_returns_the_body(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -165,3 +183,44 @@ def test_http_result_predicates() -> None:
     assert HttpResult(url=URL, status=410).is_absent
     assert HttpResult(url=URL, status=500).is_transient
     assert not HttpResult(url=URL, status=404).is_transient
+
+
+def test_the_deadline_is_shared_across_urls_and_not_per_url(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """One invocation has one HTTP budget (NFR-4), spent across both pages."""
+    recorder = Recorder(
+        monkeypatch,
+        [urllib.error.HTTPError(URL, 503, "unavailable", {}, io.BytesIO(b""))],  # type: ignore[arg-type]
+    )
+    clock = StalledClock()
+
+    def sleeper(seconds: float) -> None:
+        clock.advance(seconds)
+
+    client = UrllibHttpClient(policy(deadline_seconds=1, backoff_seconds=2.0), sleeper, clock)
+    first = client.get(URL)
+    assert first.status == 503  # tried once, then the budget was gone
+    second = client.get(f"{URL}?second")
+    assert second.status is None
+    assert second.attempts == 0
+    assert "HTTP_DEADLINE_SECONDS" in (second.error or "")
+    # The second URL was refused without being requested at all.
+    assert len(recorder.calls) == 1
+
+
+def test_a_deadline_that_is_already_spent_makes_no_request(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recorder = Recorder(monkeypatch, [FakeResponse()])
+    clock = StalledClock()
+
+    def sleeper(seconds: float) -> None:
+        clock.advance(seconds)
+
+    client = UrllibHttpClient(policy(deadline_seconds=1), sleeper, clock)
+    clock.advance(5)
+    result = client.get(URL)
+    assert result.attempts == 0
+    assert "HTTP_DEADLINE_SECONDS" in (result.error or "")
+    assert recorder.calls == []

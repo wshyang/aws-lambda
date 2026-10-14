@@ -46,7 +46,7 @@ row says otherwise. The sandbox has no AWS credentials and no egress to
 | Integration: whole handler over injected ports (every outcome branch), deployment parity, template invariants, captured-page regression | `pytest tests/integration` | **RUN — 305 passed** |
 | Whole suite, as CI runs it | `pytest` / `scripts/check.sh` | **RUN — 558 passed, 5 skipped** (the 5 are the live tests, skipped without `--live`) |
 | Templates: `cfn-lint` 1.57.2 | `scripts/check.sh` | **RUN — clean** |
-| Artefact: deterministic packaging | `scripts/build-package.sh` | **RUN — 16 entries, 34 482 bytes, sha256 `35f6fd2e…`; two consecutive builds produced the identical hash.** The zip imports cleanly with only the standard library available |
+| Artefact: deterministic packaging | `scripts/build-package.sh` | **RUN — 16 entries, 35 140 bytes, sha256 `03dea965…`; two consecutive builds produced the identical hash.** The zip imports cleanly with only the standard library available |
 | Offline dry run of the whole pipeline | `scripts/dev.sh` / `python -m sap_patch_day.local_cli` | **RUN — `status=delivered`, 21 notes, 4 critical / 2 high / 14 medium / 1 low**, preview written to `dist/preview-2026-10.html` |
 | **Live HTTP against `support.sap.com`** | `scripts/live-check.sh` | **NOT RUN — the sandbox cannot reach the host (TLS connection closed). The failure is handled correctly: the run reported `attempt-failed` with the transport error and sent nothing.** Run it from a host with egress before trusting the parser |
 | **AWS CLI deployment scripts** | `scripts/awscli/deploy-all.sh` | **NOT RUN — no AWS CLI, credentials or account in the sandbox.** Static checks only (shellcheck, `bash -n`, portability gates, parity against the template) |

@@ -53,6 +53,13 @@ INHERITED_KEYS = (
     "SUBJECT_PREFIX",
     "ATTACH_CSV",
     "NOTIFY_WHEN_NOT_PUBLISHED",
+    "HTTP_TIMEOUT_SECONDS",
+    "HTTP_MAX_ATTEMPTS",
+    "HTTP_BACKOFF_SECONDS",
+    "HTTP_DEADLINE_SECONDS",
+    "USER_AGENT",
+    "DRY_RUN",
+    "LOG_LEVEL",
     "ARTIFACT_KEY",
     "CREATE_SES_IDENTITY",
     "REGION",
@@ -234,6 +241,7 @@ def test_function_environment_matches_the_scripts(
         "HTTP_TIMEOUT_SECONDS",
         "HTTP_MAX_ATTEMPTS",
         "HTTP_BACKOFF_SECONDS",
+        "HTTP_DEADLINE_SECONDS",
         "USER_AGENT",
         "DRY_RUN",
         "LOG_LEVEL",
@@ -246,6 +254,7 @@ def test_function_environment_matches_the_scripts(
     assert variables["HTTP_TIMEOUT_SECONDS"] == snapshot["HTTP_TIMEOUT_SECONDS"]
     assert variables["HTTP_MAX_ATTEMPTS"] == snapshot["HTTP_MAX_ATTEMPTS"]
     assert variables["HTTP_BACKOFF_SECONDS"] == snapshot["HTTP_BACKOFF_SECONDS"]
+    assert variables["HTTP_DEADLINE_SECONDS"] == snapshot["HTTP_DEADLINE_SECONDS"]
     assert variables["DRY_RUN"] == snapshot["DRY_RUN"]
     assert variables["LOG_LEVEL"] == snapshot["LOG_LEVEL"]
 

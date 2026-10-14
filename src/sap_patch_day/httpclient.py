@@ -54,24 +54,49 @@ class HttpClient(Protocol):
 
 
 class UrllibHttpClient:
-    """Real transport: ``urllib`` with a policy-driven retry loop."""
+    """Real transport: ``urllib`` with a policy-driven retry loop.
+
+    One instance serves one invocation, so ``deadline_seconds`` is a budget for
+    the whole run (both URLs), measured with a monotonic clock. When it runs
+    out, the client stops starting attempts and reports why — a clean
+    ``attempt-failed``/notice beats being killed by the Lambda timeout.
+    """
 
     def __init__(
         self,
         policy: HttpPolicy,
         sleeper: Callable[[float], None] = time.sleep,
+        monotonic: Callable[[], float] = time.monotonic,
     ) -> None:
         self._policy = policy
         self._sleeper = sleeper
+        self._monotonic = monotonic
+        # One budget per invocation, fixed when the client is built: the second
+        # URL a run fetches must not get a fresh allowance (NFR-4).
+        self._deadline = monotonic() + policy.deadline_seconds
 
     def get(self, url: str) -> HttpResult:
-        attempt = 1
-        result = self._attempt(url, attempt)
-        while result.is_transient and attempt < self._policy.max_attempts:
-            self._sleeper(self._policy.backoff_seconds * attempt)
-            attempt += 1
-            result = self._attempt(url, attempt)
+        attempts = 0
+        result: HttpResult | None = None
+        while attempts < self._policy.max_attempts and not self._out_of_time():
+            attempts += 1
+            result = self._attempt(url, attempts)
+            if not result.is_transient:
+                return result
+            if attempts < self._policy.max_attempts:
+                self._sleeper(self._policy.backoff_seconds * attempts)
+        if result is None:
+            return HttpResult(url=url, status=None, error=self._deadline_error(), attempts=0)
         return result
+
+    def _out_of_time(self) -> bool:
+        return self._monotonic() >= self._deadline
+
+    def _deadline_error(self) -> str:
+        return (
+            f"HTTP_DEADLINE_SECONDS ({self._policy.deadline_seconds}s) exceeded "
+            "before this request was started"
+        )
 
     def _attempt(self, url: str, attempt: int) -> HttpResult:
         request = urllib.request.Request(url, headers={"User-Agent": self._policy.user_agent})

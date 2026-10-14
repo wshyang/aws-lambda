@@ -264,12 +264,26 @@ class SendRequest:
 
 @dataclass(frozen=True)
 class HttpPolicy:
-    """Transport policy (spec §9.1)."""
+    """Transport policy (spec §9.1).
 
-    timeout_seconds: int = 30
+    ``deadline_seconds`` is the budget for one invocation's HTTP work across
+    both URLs: worst case is ``deadline_seconds + timeout_seconds``, which stays
+    below the function's own timeout (NFR-4) instead of the run being killed
+    mid-flight.
+    """
+
+    timeout_seconds: int = 20
     max_attempts: int = 3
     backoff_seconds: float = 2.0
+    deadline_seconds: int = 30
     user_agent: str = "sap-patch-day-notifier/1 (aws-lambda; +https://support.sap.com)"
+
+    def __post_init__(self) -> None:
+        for name in ("timeout_seconds", "max_attempts", "deadline_seconds"):
+            if getattr(self, name) < 1:
+                raise ValueError(f"{name} must be a positive integer, got {getattr(self, name)}")
+        if self.backoff_seconds < 0:
+            raise ValueError(f"backoff_seconds must not be negative, got {self.backoff_seconds}")
 
 
 @dataclass(frozen=True)

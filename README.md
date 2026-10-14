@@ -112,7 +112,8 @@ Editing `recipients` (in the console, or `aws ssm put-parameter --overwrite`)
 changes who receives the next email — no redeploy. Changing *policy* is an
 environment update on the function: `SSM_CONFIG_PATH`, `SSM_STATE_PATH`,
 `RETRY_WINDOW_END_SGT`, `HTTP_TIMEOUT_SECONDS`, `HTTP_MAX_ATTEMPTS`,
-`HTTP_BACKOFF_SECONDS`, `USER_AGENT`, `DRY_RUN`, `LOG_LEVEL`. The deployed
+`HTTP_BACKOFF_SECONDS`, `HTTP_DEADLINE_SECONDS`, `USER_AGENT`, `DRY_RUN`,
+`LOG_LEVEL`. The deployed
 defaults are listed in `.env.example`, and
 [`docs/spec.md`](docs/spec.md) §9 is the contract.
 
