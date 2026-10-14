@@ -21,9 +21,10 @@ in the index and a four-column `<table>` in the bulletin.
 
 **How this is corrected, deliberately:** `scripts/capture-fixture.sh --month
 YYYY-MM [--index]` saves the raw HTML of a live page to
-`tests/fixtures/captured/<YYYY-MM-DD>/` (and prints the provenance row and the
-sha256 prefix to record). A capture never overwrites a curated fixture; it
-lands beside it. `tests/integration/test_captured_pages.py` picks up every file
+`tests/fixtures/captured/<YYYY-MM-DD>/` (the dated default; `--out-dir` overrides
+it) and prints the provenance row and the sha256 prefix to record. A capture
+never overwrites a curated fixture; it lands beside it, and a failed fetch
+leaves no directory behind. `tests/integration/test_captured_pages.py` picks up every file
 in that directory automatically, so the first capture becomes a regression test
 without another commit to the test code. If a reconstruction ever disagrees
 with a capture, **the capture wins** and the reconstruction is corrected in the

@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 #
-# Capture a real SAP page into tests/fixtures/ (docs/addenda/0010).
+# Capture a real SAP page into tests/fixtures/captured/<date>/ (addendum 0010).
 #
 # A real capture beats any reconstruction: it is the only way a parser change
 # can be checked against the markup SAP actually serves. The script fetches the
 # page, refuses to store anything that does not parse as the month you asked
-# for, and prints the provenance line to add to tests/fixtures/README.md.
+# for, and prints the provenance line to add to tests/fixtures/README.md. It
+# never overwrites a curated fixture: captures live in their own directory,
+# where tests/integration/test_captured_pages.py picks them up automatically.
 #
 #   scripts/capture-fixture.sh --month 2026-11
 #   scripts/capture-fixture.sh --month 2026-11 --index
@@ -18,7 +20,7 @@ SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 REPO_ROOT=$(cd "${SCRIPT_DIR}/.." && pwd)
 cd "$REPO_ROOT"
 
-OUT_DIR="tests/fixtures"
+OUT_DIR=""
 MONTH=""
 INDEX="false"
 OVERWRITE="false"
@@ -35,6 +37,7 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     --out-dir)
+      [ $# -ge 2 ] || { printf 'capture-fixture.sh: --out-dir needs a path\n' >&2; exit 2; }
       OUT_DIR="$2"
       shift 2
       ;;
@@ -55,13 +58,18 @@ done
 
 [ -n "$MONTH" ] || { printf 'capture-fixture.sh: --month YYYY-MM is required\n' >&2; exit 2; }
 
+# Captures are dated and never edited, so the default directory is today's:
+# a later capture of the same month sits beside the earlier one instead of
+# overwriting it (tests/fixtures/README.md, "the rule").
+if [ -z "$OUT_DIR" ]; then
+  OUT_DIR="tests/fixtures/captured/$(date +%Y-%m-%d)"
+fi
+
 if [ -x "${REPO_ROOT}/.venv/bin/python" ]; then
   PYTHON="${REPO_ROOT}/.venv/bin/python"
 else
   PYTHON=python3
 fi
-
-mkdir -p "$OUT_DIR"
 
 env PYTHONPATH=src CAPTURE_MONTH="$MONTH" CAPTURE_OUT="$OUT_DIR" \
   CAPTURE_INDEX="$INDEX" CAPTURE_OVERWRITE="$OVERWRITE" "$PYTHON" - <<'PYTHON'
@@ -107,6 +115,9 @@ else:
     notes = extract_notes_table(root)
     summary = f"{len(notes)} notes parsed from the bulletin table"
 
+# The directory is created only once there is something to put in it, so a
+# failed fetch leaves nothing behind.
+destination.parent.mkdir(parents=True, exist_ok=True)
 destination.write_text(result.body, encoding="utf-8")
 digest = hashlib.sha256(result.body.encode("utf-8")).hexdigest()[:16]
 

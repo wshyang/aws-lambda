@@ -16,7 +16,7 @@ Two kinds of file live here, and the difference matters (see
 
 **A reconstructed fixture is never presented as a capture.** When
 `scripts/capture-fixture.sh` has been run from a host with egress to
-`support.sap.com`, the raw bytes land in `captured/<date>/`; if a capture
+`support.sap.com`, the fetched page lands in `captured/<date>/`; if a capture
 disagrees with a reconstruction, **the capture wins** and the reconstruction is
 corrected in the same change.
 
