@@ -1,0 +1,11 @@
+# Development and CI tooling only. Never installed into the deployed artefact.
+# Versions are pinned so `scripts/check.sh` behaves identically on every machine
+# and in CloudShell (GREENFIELD.md §7, §10).
+pytest==9.1.1
+ruff==0.17.0
+mypy==2.4.0
+cfn-lint==1.57.2
+shellcheck-py==0.11.0.1
+PyYAML==6.0.3
+boto3==1.43.113
+botocore==1.43.113

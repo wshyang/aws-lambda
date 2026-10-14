@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  SAP Security Patch Day notifier - bootstrap stack: the S3 bucket that holds the
+  Lambda deployment artefact. Deployed separately from the application stack so a
+  stack rollback can never remove the code a rollback needs.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Artefact storage
+        Parameters:
+          - ArtifactBucketName
+          - RetentionDays
+    ParameterLabels:
+      ArtifactBucketName:
+        default: Bucket name
+      RetentionDays:
+        default: Non-current version retention (days)
+
+Parameters:
+  ArtifactBucketName:
+    Type: String
+    Description: >-
+      Name of the artefact bucket. The default matches the name used by
+      scripts/awscli/01-artifact-bucket.sh, so both deployment paths converge.
+    Default: ""
+  RetentionDays:
+    Type: Number
+    Description: Days to keep non-current object versions before expiring them.
+    Default: 90
+    MinValue: 1
+
+Conditions:
+  UseDefaultName: !Equals [!Ref ArtifactBucketName, ""]
+
+Resources:
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !If
+        - UseDefaultName
+        - !Sub "sap-patch-day-artifacts-${AWS::AccountId}-${AWS::Region}"
+        - !Ref ArtifactBucketName
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      LifecycleConfiguration:
+        Rules:
+          - Id: abort-incomplete-uploads
+            Status: Enabled
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+          - Id: expire-old-versions
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: !Ref RetentionDays
+      Tags:
+        - Key: Application
+          Value: sap-security-patch-day-notifier
+
+Outputs:
+  ArtifactBucketName:
+    Description: Bucket that holds the Lambda deployment package.
+    Value: !Ref ArtifactBucket
+    Export:
+      Name: sap-security-patch-day-artifacts-bucket
+
+  ArtifactBucketArn:
+    Description: ARN of the artefact bucket.
+    Value: !GetAtt ArtifactBucket.Arn
+    Export:
+      Name: sap-security-patch-day-artifacts-bucket-arn

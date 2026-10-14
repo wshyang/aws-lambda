@@ -1,0 +1,22 @@
+# Local environment and tool caches
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Build output
+dist/
+build/
+*.zip
+
+# Local configuration (never committed - see .env.example)
+.env
+.env.local
+.env.test
+
+# Editor noise
+.DS_Store
+.idea/
+.vscode/
