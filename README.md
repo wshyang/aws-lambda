@@ -139,6 +139,21 @@ Fixtures are either **captured** (raw bytes, never edited) or **reconstructed**
 [addendum 0010](docs/addenda/0010-test-provenance-and-validation-status.md),
 which is also the honest record of which validation layers have actually run.
 
+## Continuous integration
+
+`.github/workflows/ci.yml` runs the same gates as `scripts/check.sh` on Python
+3.11 and 3.12, builds the package, uploads it, and re-runs the Bash-3.2
+portability gates on macOS (where `/bin/bash` really is 3.2 — CloudShell ships
+5, so a sandbox cannot prove that half).
+
+This session's GitHub integration cannot create files under
+`.github/workflows/` (the token lacks the `workflows` permission), so the same
+workflow is committed at `ci/github-actions-ci.yml`:
+
+```bash
+mkdir -p .github/workflows && cp ci/github-actions-ci.yml .github/workflows/ci.yml
+```
+
 ## Repository layout
 
 ```
@@ -146,6 +161,7 @@ src/sap_patch_day/       the function: 16 modules, ports and adapters, no depend
 infrastructure/cloudformation/  bootstrap bucket + application stack
 scripts/                 check.sh, dev.sh, live-check.sh, capture-fixture.sh,
                          build-package.sh, deploy-cloudformation.sh
+ci/github-actions-ci.yml  the CI workflow, ready to copy to .github/workflows/
 scripts/awscli/          the ordered AWS CLI deployment path (00-env.sh holds the defaults)
 tests/                   256 unit, 336 integration, opt-in live suite, fixtures
 docs/spec.md             the contract: requirements, data model, payloads, config

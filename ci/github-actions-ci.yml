@@ -1,0 +1,80 @@
+# CI, kept here because this environment's GitHub integration cannot create
+# files under .github/workflows/ (a GitHub App needs the `workflows`
+# permission, which this token does not have). To enable it, either copy this
+# file to .github/workflows/ci.yml and push from a machine with that
+# permission, or paste it into the repository's Actions tab:
+#
+#   mkdir -p .github/workflows && cp ci/github-actions-ci.yml .github/workflows/ci.yml
+#
+# The file is a normal workflow: two jobs, no secrets, no write permissions.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  gates:
+    # Every mechanical gate, on the declared Python floor and on the runtime the
+    # function is deployed with (GREENFIELD.md §7, CLAUDE.md §7).
+    name: gates (python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install pinned tools
+        run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
+      - name: Run every gate
+        run: bash scripts/check.sh
+      - name: Confirm the artefact still builds
+        run: |
+          bash scripts/build-package.sh
+          test -s dist/sap-security-patch-day-notifier.zip
+      - name: Upload the deployment package
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sap-security-patch-day-notifier
+          path: dist/sap-security-patch-day-notifier.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  bash32:
+    # CloudShell ships Bash 5; a Mac ships 3.2. The scripts must run on both, so
+    # the portability gates run where the older shell is the system shell.
+    name: bash 3.2 portability (macOS)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned tools
+        run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
+      - name: Syntax check with the system bash
+        run: |
+          /bin/bash --version | head -1
+          for script in scripts/*.sh scripts/awscli/*.sh; do
+            /bin/bash -n "$script"
+          done
+      - name: Portability gates
+        run: python -m pytest tests/integration/test_shell_portability.py -q
