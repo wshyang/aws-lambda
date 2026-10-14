@@ -23,6 +23,7 @@ from tests.support.templates import (
     references,
     resources as template_resources,
     sub_text,
+    sub_texts,
 )
 
 WILDCARD = "*"
@@ -93,7 +94,11 @@ def test_each_scoped_statement_names_its_own_prefix(app: Mapping[str, object]) -
     assert "parameter${StateParameterPath}*" in sub_text(by_sid["WriteDeliveryState"]["Resource"])
     assert by_sid["WriteDeliveryState"]["Action"] == ["ssm:PutParameter"]
     assert all(action.startswith("ssm:Get") for action in by_sid["ReadConfiguration"]["Action"])
-    assert "identity/${SenderEmailAddress}" in sub_text(by_sid["SendPatchDayMail"]["Resource"])
+    ses_resources = " ".join(sub_texts(by_sid["SendPatchDayMail"]["Resource"]))
+    assert "identity/${SenderEmailAddress}" in ses_resources
+    # A request that names a configuration set needs permission on it, and this
+    # function always names one (ConfigurationSetName has no empty default).
+    assert "configuration-set/${ConfigurationSetName}" in ses_resources
     assert by_sid["SendPatchDayMail"]["Action"] == ["ses:SendEmail", "ses:SendRawEmail"]
     assert sub_text(by_sid["WriteOwnLogs"]["Resource"]) == "${FunctionLogGroup.Arn}:*"
     assert by_sid["WriteOwnLogs"]["Action"] == ["logs:CreateLogStream", "logs:PutLogEvents"]

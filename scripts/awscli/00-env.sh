@@ -43,6 +43,8 @@ LOG_LEVEL="${LOG_LEVEL:-INFO}"
 
 ARTIFACT_KEY="${ARTIFACT_KEY:-sap-security-patch-day-notifier.zip}"
 CREATE_SES_IDENTITY="${CREATE_SES_IDENTITY:-true}"
+# Not a deployment default: an argument that targets one run (08-verify.sh).
+TARGET_MONTH="${TARGET_MONTH:-}"
 
 REGION="${REGION:-${AWS_REGION:-${AWS_DEFAULT_REGION:-ap-southeast-1}}}"
 SENDER_ADDRESS="${SENDER_ADDRESS:-}"
@@ -176,6 +178,13 @@ parse_common_args() {
         ARTIFACT_KEY="$2"
         shift 2
         ;;
+      --target-month)
+        case "${2:-}" in
+          [0-9][0-9][0-9][0-9]-[0-9][0-9]) TARGET_MONTH="$2" ;;
+          *) die "--target-month expects YYYY-MM, got '${2:-}'" ;;
+        esac
+        shift 2
+        ;;
       --no-watchdog)
         ENABLE_WATCHDOG="false"
         shift
@@ -221,6 +230,7 @@ Deployment flags shared by every script in scripts/awscli:
   --artifact-key K      Artefact key (default: sap-security-patch-day-notifier.zip)
   --no-watchdog         Do not create the second-Wednesday watchdog rule
   --no-ses-identity     Do not create the SES identity (it already exists)
+  --target-month YYYY-MM Run one month on purpose (08-verify.sh smoke test)
   --dry-run             Deploy the function with DRY_RUN=true (no email, no state writes)
   --yes                 Do not prompt for confirmation
 USAGE

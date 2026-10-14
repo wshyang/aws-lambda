@@ -330,7 +330,7 @@ CloudFormation parameters: `FunctionName`, `ArtifactBucket`, `ArtifactKey`,
 | Id | Requirement |
 | -- | ----------- |
 | NFR-1 | A monthly run costs effectively nothing: one Lambda invocation plus retries, no provisioned capacity, no always-on services. |
-| NFR-2 | Least privilege: the function's policy grants only `logs:CreateLogStream`/`PutLogEvents` on its own group, `ssm:GetParameter*` on the config path, `ssm:PutParameter` on the state path, `ses:SendEmail`/`SendRawEmail` on the sender identity, and `xray:PutTraceSegments` when tracing is on. |
+| NFR-2 | Least privilege: the function's policy grants only `logs:CreateLogStream`/`PutLogEvents` on its own group, `ssm:GetParameter*` on the config path, `ssm:PutParameter` on the state path, `ses:SendEmail`/`SendRawEmail` on the sender identity **and on the configuration set** (SES v2 requires permission on both when a request names one), and `xray:PutTraceSegments` when tracing is on. |
 | NFR-3 | No credentials, account IDs or real addresses in the repository. |
 | NFR-4 | The function timeout is 60 s; the HTTP client enforces a 30 s deadline across both URLs (`HTTP_DEADLINE_SECONDS`), so the worst case is 30 s + one 20 s request = 50 s and the run ends with a result rather than a Lambda timeout. |
 | NFR-5 | The scrapers are read-only, identify themselves in `User-Agent`, and make at most 2 requests per attempt with linear backoff — no crawling, no concurrency. |

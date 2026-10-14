@@ -8,7 +8,7 @@ invariant tests need to compare names and wiring.
 
 from __future__ import annotations
 
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, Sequence
 from pathlib import Path
 
 import yaml
@@ -63,6 +63,13 @@ def sub_text(value: object) -> str:
     text = str(value)
     assert text.startswith(PREFIX_SUB), f"expected a !Sub value, got {text!r}"
     return text[len(PREFIX_SUB) :]
+
+
+def sub_texts(value: object) -> list[str]:
+    """The literal part of every `!Sub` in a value: one, or a list of them."""
+    if isinstance(value, Sequence) and not isinstance(value, str):
+        return [sub_text(item) for item in value]
+    return [sub_text(value)]
 
 
 def references(value: object) -> Iterator[str]:

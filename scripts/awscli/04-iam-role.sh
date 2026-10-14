@@ -64,7 +64,10 @@ INLINE_POLICY=$(cat <<POLICY
       "Sid": "SendPatchDayMail",
       "Effect": "Allow",
       "Action": ["ses:SendEmail", "ses:SendRawEmail"],
-      "Resource": "arn:aws:ses:${REGION}:${ACCOUNT}:identity/${SENDER_ADDRESS}"
+      "Resource": [
+        "arn:aws:ses:${REGION}:${ACCOUNT}:identity/${SENDER_ADDRESS}",
+        "arn:aws:ses:${REGION}:${ACCOUNT}:configuration-set/${SES_CONFIGURATION_SET}"
+      ]
     },
     {
       "Sid": "PublishTraces",

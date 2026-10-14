@@ -147,7 +147,7 @@ infrastructure/cloudformation/  bootstrap bucket + application stack
 scripts/                 check.sh, dev.sh, live-check.sh, capture-fixture.sh,
                          build-package.sh, deploy-cloudformation.sh
 scripts/awscli/          the ordered AWS CLI deployment path (00-env.sh holds the defaults)
-tests/                   256 unit, 321 integration, opt-in live suite, fixtures
+tests/                   256 unit, 335 integration, opt-in live suite, fixtures
 docs/spec.md             the contract: requirements, data model, payloads, config
 docs/addenda/            numbered decisions and their rationale (0001–0010)
 GREENFIELD.md, CLAUDE*.md  the coding discipline this repository follows

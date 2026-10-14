@@ -334,6 +334,43 @@ def test_no_state_parameter_is_managed_by_cloudformation(
             )
 
 
+@pytest.mark.parametrize(
+    ("suffix", "metric"),
+    [("errors", "Errors"), ("throttles", "Throttles")],
+)
+def test_both_paths_configure_the_alarms_the_same_way(
+    resources: Mapping[str, Mapping[str, object]], suffix: str, metric: str
+) -> None:
+    """The CLI's `put_alarm` is text, so the two paths are compared field by field."""
+    resource = resources[{"errors": "ErrorsAlarm", "throttles": "ThrottlesAlarm"}[suffix]]
+    properties = resource["Properties"]
+    assert resource["Type"] == "AWS::CloudWatch::Alarm"
+    assert sub_text(properties["AlarmName"]) == "${FunctionName}-" + suffix
+    assert properties["MetricName"] == metric
+    assert properties["Namespace"] == "AWS/Lambda"
+    assert properties["Statistic"] == "Sum"
+    assert properties["Period"] == 86400
+    assert properties["EvaluationPeriods"] == 1
+    assert properties["Threshold"] == 1
+    assert properties["ComparisonOperator"] == "GreaterThanOrEqualToThreshold"
+    assert properties["TreatMissingData"] == "notBreaching"
+
+    script = (SCRIPTS_DIR / "07-observability.sh").read_text(encoding="utf-8")
+    for line in (
+        '--metric-name "$metric_name"',
+        "--statistic Sum",
+        "--period 86400",
+        "--evaluation-periods 1",
+        "--threshold 1",
+        "--comparison-operator GreaterThanOrEqualToThreshold",
+        "--treat-missing-data notBreaching",
+        "--namespace AWS/Lambda",
+        "put_alarm errors Errors",
+        "put_alarm throttles Throttles",
+    ):
+        assert line in script, f"07-observability.sh drifted from the template: {line}"
+
+
 def test_the_cli_path_does_not_hardcode_a_resource_name(snapshot: dict[str, str]) -> None:
     """Every default lives in 00-env.sh; the other scripts use the variables."""
     derived = [

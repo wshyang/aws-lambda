@@ -249,7 +249,12 @@ Resources:
                 Action:
                   - ses:SendEmail
                   - ses:SendRawEmail
-                Resource: !Sub "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/${SenderEmailAddress}"
+                # Both resources are needed: the identity is who we send as, and
+                # the configuration set is named in every request, so the caller
+                # needs permission to use it (SES v2 authorization).
+                Resource:
+                  - !Sub "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/${SenderEmailAddress}"
+                  - !Sub "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/${ConfigurationSetName}"
               - Sid: PublishTraces
                 Effect: Allow
                 Action:
