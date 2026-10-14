@@ -14,10 +14,20 @@
   **09:00 Singapore time** on the second Wednesday, invoked with
   `{"run_mode":"watchdog"}` via the rule's constant input.
 
-The retry window is six attempts, not one. The window end (`RETRY_WINDOW_END_SGT`,
-default `20:00`) is what makes "final attempt" meaningful, and it is checked
-against the injected Singapore clock — not against an attempt counter, so a
-missed or duplicated invocation cannot desynchronise it.
+The retry window is ten attempts, not one. The window end (`RETRY_WINDOW_END_SGT`,
+default `20:30` — the last slot of the schedule) is what makes "final attempt"
+meaningful, and it is checked against the injected Singapore clock — not against
+an attempt counter, so a missed or duplicated invocation cannot desynchronise
+it. Keeping the two equal is the point: if the end were earlier, several slots
+would be "final" and the operator would be told the same thing repeatedly.
+`tests/integration/test_deployment_parity.py` asserts the equality by parsing
+the cron expression, so a future schedule change cannot quietly break it.
+
+**One notice per month.** Because more than one slot can be final (an operator
+can move the end earlier, and a rule can be retried), a final attempt that would
+repeat this month's notice returns `notice-already-sent` instead of emailing
+again. `{"ignore_idempotency":true}` still forces a resend if a notice was
+actually lost.
 
 **Two-kind idempotency.** State is keyed by (`month`, `kind`) with kind ∈
 {`bulletin`, `pending`, `watchdog`}; a `pending` notice never suppresses the
@@ -34,15 +44,15 @@ deleted parameter, a code bug that raises on every attempt.
 - SAP sometimes publishes several hours after the nominal start of patch day.
   A single 16:00 check optimises for the wrong risk: a late publication would
   mean a *month* without the notes, whereas an extra 30-minute poll costs
-  almost nothing (NFR-1) and makes at most six requests to two public pages
+  almost nothing (NFR-1) and makes at most twenty requests to two public pages
   (NFR-5).
 - "Final attempt" derived from the clock rather than a counter keeps the
   function stateless-correct: any attempt, in any order, in any number, reaches
   the same conclusion.
 - Two-kind idempotency exists because the states are genuinely different:
   "we told you it is not out yet" is not "we sent you the notes". A single
-  boolean would have created the classic bug where the notice at 20:00 blocks
-  the real bulletin a later run would have delivered.
+  boolean would have created the classic bug where the notice from the final
+  slot blocks the real bulletin a later run would have delivered.
 - The watchdog is deliberately *not* an alarm: CloudWatch alarms page
   operators, but the people who need to know that a patch day was missed are
   the recipients. SNS alarms remain for code-level failures (FR-6.2).
@@ -51,8 +61,10 @@ deleted parameter, a code bug that raises on every attempt.
 
 ## Practical impact
 
-- **Cost of a wider window:** six invocations per month instead of one; of
-  those, five exit before parsing a table. Timeout is 60 s, memory 256 MB.
+- **Cost of a wider window:** ten invocations per month instead of one. The
+  nine non-final slots normally return `not-published-yet` after a single 404
+  and cost nothing measurable; the last one decides between the notice and the
+  bulletin. Timeout is 60 s, memory 256 MB.
 - **Failure of a middle attempt is normal.** A `attempt-failed` result is
   logged, returns without raising, and lets the next slot try again, so a
   transient SAP blip does not trip the `Errors` alarm. Only *unexpected*

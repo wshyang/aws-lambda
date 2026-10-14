@@ -8,7 +8,7 @@ store are substituted.
 from __future__ import annotations
 
 from collections.abc import Mapping
-from datetime import datetime
+from datetime import UTC, datetime
 
 import pytest
 
@@ -185,6 +185,54 @@ def test_idempotency_can_be_bypassed_on_purpose(window_moment: datetime) -> None
     assert result["status"] == "delivered"
     assert result["detail"] == "idempotency_bypassed"
     assert harness.recording_mailer().count == 1
+
+
+def test_a_second_final_attempt_does_not_send_a_second_notice(final_moment: datetime) -> None:
+    """FR-3.4: one notice per month, however many attempts turn out to be final.
+
+    With the last two schedule slots both past the window end, the operator
+    would otherwise get the same "not published yet" email twice in 30 minutes.
+    """
+    harness = build_harness({INDEX_URL: index_page(linked=False)}, final_moment)
+    first = execute_request(delivery_event(), harness.run)
+    second = execute_request(delivery_event(), harness.run)
+
+    assert first["status"] == "pending-notice-sent"
+    assert second["status"] == "notice-already-sent"
+    assert "already emailed" in second["detail"]
+    assert harness.recording_mailer().count == 1, "the notice must not be repeated"
+
+
+def test_a_second_unverified_final_attempt_does_not_send_a_second_notice(
+    final_moment: datetime,
+) -> None:
+    harness = build_harness({CANONICAL: fixture("no_table.html")}, final_moment)
+    assert execute_request(delivery_event(), harness.run)["status"] == "unverified-notice-sent"
+    assert execute_request(delivery_event(), harness.run)["status"] == "notice-already-sent"
+    assert harness.recording_mailer().count == 1
+
+
+def test_a_notice_can_be_forced_again_on_purpose(final_moment: datetime) -> None:
+    harness = build_harness({INDEX_URL: index_page(linked=False)}, final_moment)
+    execute_request(delivery_event(), harness.run)
+    forced = execute_request(delivery_event(ignore_idempotency=True), harness.run)
+    assert forced["status"] == "pending-notice-sent"
+    assert harness.recording_mailer().count == 2
+
+
+def test_the_notice_guard_never_silences_a_working_window(window_moment: datetime) -> None:
+    """A notice from a *previous* month must not mute this month's final attempt."""
+    state = InMemoryStateStore()
+    state.record_delivery(month="2026-09", kind=KIND_PENDING, at=window_moment)
+    harness = build_harness({INDEX_URL: index_page(linked=False)}, window_moment, state=state)
+    assert execute_request(delivery_event(), harness.run)["status"] == "not-published-yet"
+
+    later = build_harness(
+        {INDEX_URL: index_page(linked=False)},
+        datetime(2026, 10, 13, 12, 30, tzinfo=UTC),
+        state=InMemoryStateStore(),
+    )
+    assert execute_request(delivery_event(), later.run)["status"] == "pending-notice-sent"
 
 
 def test_a_pending_notice_does_not_suppress_the_later_bulletin(final_moment: datetime) -> None:

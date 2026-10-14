@@ -1,8 +1,9 @@
 """Shared fixtures.
 
 Time is always injected: no test depends on today's date or on the wall clock
-(CLAUDE-testing.md §4). The two moments below are the October 2026 patch day at
-16:05 and 20:05 Singapore time.
+(CLAUDE-testing.md §4). The moments below are the real October 2026 slots: the
+first delivery attempt (16:05 Singapore time), the last one (20:30 Singapore
+time, the final attempt), and the watchdog the next morning.
 """
 
 from __future__ import annotations
@@ -18,7 +19,7 @@ from tests.support.harness import Harness, build_harness
 from tests.support.pages import OCTOBER_2026, fixture, page_map
 
 WINDOW_MOMENT = datetime(2026, 10, 13, 8, 5, tzinfo=UTC)
-FINAL_MOMENT = datetime(2026, 10, 13, 12, 5, tzinfo=UTC)
+FINAL_MOMENT = datetime(2026, 10, 13, 12, 30, tzinfo=UTC)
 WATCHDOG_MOMENT = datetime(2026, 10, 14, 1, 0, tzinfo=UTC)
 
 
@@ -54,7 +55,7 @@ def window_moment() -> datetime:
 
 @pytest.fixture
 def final_moment() -> datetime:
-    """An attempt past the retry window end (20:05 SGT)."""
+    """The last attempt in the schedule, past the window end (20:30 SGT)."""
     return FINAL_MOMENT
 
 

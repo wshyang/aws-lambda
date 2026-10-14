@@ -179,9 +179,12 @@ Parameters:
 
   RetryWindowEndSgt:
     Type: String
-    Default: "20:00"
+    Default: "20:30"
+    Description: >-
+      Singapore-time boundary used to label the final attempt. Keep it equal to
+      the last slot of DeliveryScheduleExpression, or several attempts become
+      "final" (the notice is still sent once per month).
     AllowedPattern: "^([01]?[0-9]|2[0-3]):[0-5][0-9]$"
-    Description: Singapore-time boundary at which the final attempt sends a notice.
 
   AlarmNotificationEmail:
     Type: String

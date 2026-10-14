@@ -50,7 +50,7 @@ content), any interactive interface, any database.
 | Id | Requirement |
 | -- | ----------- |
 | FR-1.1 | The delivery rule fires on the **second Tuesday of each month** at `16:00` Singapore time (`UTC+08:00`), expressed as an EventBridge cron in UTC: `cron(0 8 ? * TUE#2 *)`. |
-| FR-1.2 | Retry attempts fire every 30 minutes through the retry window `16:00`–`20:30` Singapore time on that day: `cron(0,30 8-12 ? * TUE#2 *)`. |
+| FR-1.2 | Retry attempts fire every 30 minutes through the retry window `16:00`–`20:30` Singapore time on that day: `cron(0,30 8-12 ? * TUE#2 *)` — ten attempts, the last one at `20:30`. |
 | FR-1.3 | A watchdog rule fires on the **second Wednesday** at `09:00` Singapore time (`cron(0 1 ? * WED#2 *)`). |
 | FR-1.4 | All schedule expressions are CloudFormation parameters with the defaults above, so a deployment can shift them without editing code. |
 | FR-1.5 | The application never assumes it is scheduled: it derives the patch-day month from the injected clock in `Asia/Singapore`. |
@@ -74,7 +74,7 @@ content), any interactive interface, any database.
 | FR-3.1 | An attempt delivers the bulletin at most once per (month, kind), where kind ∈ {`bulletin`, `pending`, `watchdog`}. Re-running the Lambda repeatedly must not resend. |
 | FR-3.2 | State lives in SSM Parameter Store under the state path (spec §9.2) and is written after a successful send, never before. |
 | FR-3.3 | If the bulletin is not published on a non-final attempt, the Lambda records the attempt and returns without emailing. |
-| FR-3.4 | On the **final attempt** of the window (`>=` retry-window end, Singapore time), if the bulletin is still not published the Lambda sends one *pending notice* (if `notify_when_not_published` is `true`) and records it. |
+| FR-3.4 | On the **final attempt** of the window (`>=` retry-window end, Singapore time), if the bulletin is still not published the Lambda sends one *pending notice* (if `notify_when_not_published` is `true`) and records it. **At most one notice per month**: a further final attempt returns `notice-already-sent` instead of emailing again. `RETRY_WINDOW_END_SGT` should equal the last scheduled attempt so only that attempt is final. |
 | FR-3.5 | If the final attempt is *unverified* (SAP unreachable), the Lambda sends a notice whose subject and body state that publication could not be verified — it must never claim the notes are absent when the truth is unknown. |
 | FR-3.6 | A `pending` notice does not prevent a later successful `bulletin` delivery for the same month, and vice versa. |
 | FR-3.7 | Every attempt writes `last_attempt_at` (ISO-8601 UTC) to the state path, whatever the outcome. |
@@ -179,7 +179,7 @@ Delivery state machine, per patch-day month:
 | `{"run_mode": "delivery"}` | The FR-2 → FR-5 delivery path |
 | `{"run_mode": "watchdog"}` | The FR-3.8 watchdog path |
 | `{"run_mode": "delivery", "target_month": "2026-09"}` | Operator override: run against a specific month (`YYYY-MM`), for smoke tests. Invalid values are rejected with the message in §8 |
-| `{"run_mode": "delivery", "ignore_idempotency": true}` | Manual resend; logged loudly, and the result reports `idempotency_bypassed` |
+| `{"run_mode": "delivery", "ignore_idempotency": true}` | Manual resend; logged loudly, and the result reports `idempotency_bypassed`. It bypasses both the bulletin and the notice guard, so an operator can force a notice that was lost |
 
 Unknown `run_mode` values are rejected (not silently defaulted). Payload
 booleans are read tolerantly: `false`, `"false"`, `0`, `"0"`, `"no"`, `"off"` and
@@ -216,6 +216,7 @@ once the Singapore-time boundary has passed. `canonical_url`, `http_status` and
 | `not-published-yet` | Non-final attempt, nothing emailed |
 | `pending-notice-sent` | Final attempt, notice emailed |
 | `unverified-notice-sent` | Final attempt, SAP unreachable, notice emailed |
+| `notice-already-sent` | Final attempt, but this month's notice was already emailed |
 | `attempt-failed` | Non-final attempt, SAP unreachable, nothing emailed |
 | `watchdog-alert-sent` | FR-3.8 alert emailed |
 | `watchdog-satisfied` | FR-3.8 found a delivered bulletin for the month |
@@ -258,7 +259,7 @@ Missing table during a probe is **not** a raised error: it becomes
 | `SSM_STATE_PATH` | `/sap-security-patch-day/state/` | Prefix of the state parameters |
 | `AWS_REGION` | injected by Lambda | Region for SES/SSM clients |
 | `CONFIGURATION_SET` | empty | SES configuration set name, when deployed |
-| `RETRY_WINDOW_END_SGT` | `20:00` | FR-3.4 final-attempt boundary, Singapore time `HH:MM` |
+| `RETRY_WINDOW_END_SGT` | `20:30` | FR-3.4 final-attempt boundary, Singapore time `HH:MM`; keep it equal to the last slot of the delivery schedule |
 | `HTTP_TIMEOUT_SECONDS` | `20` | Per-request timeout |
 | `HTTP_MAX_ATTEMPTS` | `3` | Attempts per URL per invocation |
 | `HTTP_BACKOFF_SECONDS` | `2` | Base of the linear backoff between attempts |

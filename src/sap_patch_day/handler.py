@@ -179,6 +179,12 @@ def run_delivery(request: DeliveryRequest, run: RunContext) -> dict[str, Any]:
     )
     if check.bulletin is not None:
         return _deliver(check, request, run)
+    if _notice_already_sent(request, run, snapshot):
+        return _result(
+            "notice-already-sent",
+            request.target,
+            "this month's notice was already emailed; the window has closed",
+        ) | _probe_fields(check)
     if check.is_unverified:
         return _handle_unverified(request, check, run)
     return _handle_unpublished(request, check, run)
@@ -312,6 +318,24 @@ def _send_request(content: EmailContent, config: RuntimeConfig) -> SendRequest:
 
 def _probe_request(request: DeliveryRequest, run: RunContext) -> ProbeRequest:
     return ProbeRequest(target=request.target, observed_at=run.clock.now())
+
+
+def _notice_already_sent(
+    request: DeliveryRequest, run: RunContext, snapshot: StateSnapshot
+) -> bool:
+    """Whether this attempt would repeat this month's notice (FR-3.4).
+
+    More than one attempt can be final — a window end moved earlier makes every
+    later slot final — and the operator wants one notice per month, not one per
+    final attempt. ``ignore_idempotency`` still forces a resend, exactly as it
+    does for the bulletin.
+    """
+    if request.ignore_idempotency or not run.config.notify_when_not_published:
+        return False
+    if not _is_final(run):
+        return False
+    month, kind = snapshot.delivered_bulletins
+    return month == request.target.label and kind == KIND_PENDING
 
 
 def _already_delivered(request: DeliveryRequest, snapshot: StateSnapshot) -> bool:

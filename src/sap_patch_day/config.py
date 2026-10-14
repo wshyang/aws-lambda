@@ -78,7 +78,7 @@ def load_config(values: Mapping[str, str], environ: Mapping[str, str]) -> Runtim
         notify_when_not_published=_config_boolean(
             values, "notify_when_not_published", default=True
         ),
-        retry_window_end=_time_of_day(environ.get("RETRY_WINDOW_END_SGT"), "20:00"),
+        retry_window_end=_time_of_day(environ.get("RETRY_WINDOW_END_SGT"), "20:30"),
         http=_http_policy(environ),
         configuration_set=_text(environ.get("CONFIGURATION_SET"), ""),
         dry_run=_environment_boolean(environ, "DRY_RUN", default=False),

@@ -4,10 +4,10 @@ An AWS Lambda that notices when SAP publishes its monthly Security Patch Day
 notes and emails the notes table to a list of recipients.
 
 It runs on the **second Tuesday of the month** (the day SAP normally ships
-patches) and keeps trying until roughly **20:30 Singapore time**, because SAP
-does not announce a release time. A **watchdog** the following morning reports
-if the month produced no email at all, so a silent failure cannot be mistaken
-for "nothing was published".
+patches), every 30 minutes from 16:00 until the last slot at **20:30 Singapore
+time**, because SAP does not announce a release time. A **watchdog** the
+following morning reports if the month produced no email at all, so a silent
+failure cannot be mistaken for "nothing was published".
 
 - Runtime: Python 3.12, arm64, no dependencies beyond the `boto3` the runtime
   already provides (`docs/addenda/0003`).
@@ -30,7 +30,8 @@ for "nothing was published".
    only, `docs/addenda/0005`).
 4. Anything else (timeout, 429, 5xx, unparseable page) is `unverified`: the run
    says so, the alarm fires, and the last attempt of the window emails a notice
-   instead of silently doing nothing.
+   instead of silently doing nothing — one notice per month, never one per
+   attempt.
 5. Each outcome is recorded in SSM, so a duplicate EventBridge delivery cannot
    send the same email twice — a manual resend is an explicit payload flag.
 
@@ -146,7 +147,7 @@ infrastructure/cloudformation/  bootstrap bucket + application stack
 scripts/                 check.sh, dev.sh, live-check.sh, capture-fixture.sh,
                          build-package.sh, deploy-cloudformation.sh
 scripts/awscli/          the ordered AWS CLI deployment path (00-env.sh holds the defaults)
-tests/                   256 unit, 316 integration, opt-in live suite, fixtures
+tests/                   256 unit, 321 integration, opt-in live suite, fixtures
 docs/spec.md             the contract: requirements, data model, payloads, config
 docs/addenda/            numbered decisions and their rationale (0001–0010)
 GREENFIELD.md, CLAUDE*.md  the coding discipline this repository follows

@@ -204,7 +204,45 @@ def test_architecture_is_a_string_in_both_paths(
 def test_the_schedule_is_the_second_tuesday_in_singapore_time(snapshot: dict[str, str]) -> None:
     assert snapshot["DELIVERY_SCHEDULE"] == "cron(0,30 8-12 ? * TUE#2 *)"
     assert snapshot["WATCHDOG_SCHEDULE"] == "cron(0 1 ? * WED#2 *)"
-    assert snapshot["RETRY_WINDOW_END_SGT"] == "20:00"
+    assert snapshot["RETRY_WINDOW_END_SGT"] == "20:30"
+
+
+def test_the_window_end_is_the_last_scheduled_attempt(snapshot: dict[str, str]) -> None:
+    """The signature of a real bug: a window end that no slot can reach.
+
+    `cron(0,30 8-12 ? * TUE#2 *)` runs ten times, from 16:00 to 20:30 Singapore
+    time. If `RETRY_WINDOW_END_SGT` were earlier than the last slot, every slot
+    after it would count as "final" and the operator would get the same notice
+    again and again. The window end is therefore pinned to the schedule.
+    """
+    minutes, hours, day_of_week = _parse_cron(snapshot["DELIVERY_SCHEDULE"])
+    assert day_of_week == "TUE#2"
+    last_utc = (max(hours), max(minutes))
+    # Singapore is UTC+08:00 with no daylight saving, so the offset is arithmetic.
+    hour_sgt = (last_utc[0] + 8) % 24
+    assert f"{hour_sgt:02d}:{last_utc[1]:02d}" == snapshot["RETRY_WINDOW_END_SGT"]
+    # ...and the first slot is the promised "around 4pm" start.
+    assert (min(hours) + 8) % 24 == 16
+
+
+def _parse_cron(expression: str) -> tuple[list[int], list[int], str]:
+    """Minutes, hours and the day-of-week field of `cron(m h ? * dow *)`."""
+    match = re.fullmatch(r"cron\((\S+) (\S+) (\S+) (\S+) (\S+) (\S+)\)", expression)
+    assert match, f"unexpected schedule expression: {expression}"
+    minutes, hours, day_of_month, month, day_of_week, year = match.groups()
+    assert (day_of_month, month, year) == ("?", "*", "*")
+    return _field(minutes), _field(hours), day_of_week
+
+
+def _field(value: str) -> list[int]:
+    numbers: list[int] = []
+    for part in value.split(","):
+        if "-" in part:
+            start, _, end = part.partition("-")
+            numbers.extend(range(int(start), int(end) + 1))
+        else:
+            numbers.append(int(part))
+    return numbers
 
 
 def test_rule_inputs_match_the_run_modes_the_handler_accepts(

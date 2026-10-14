@@ -24,7 +24,7 @@ def test_defaults_are_the_documented_ones() -> None:
     assert config.subject_prefix == "[SAP Security Patch Day]"
     assert config.attach_csv is False
     assert config.notify_when_not_published is True
-    assert config.retry_window_end == time(20, 0)
+    assert config.retry_window_end == time(20, 30)
     assert config.dry_run is False
     assert config.config_path == "/sap-security-patch-day/"
     assert config.state_path == "/sap-security-patch-day/state/"
