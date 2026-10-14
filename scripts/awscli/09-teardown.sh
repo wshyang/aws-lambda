@@ -79,6 +79,9 @@ for parameter_name in sender recipients reply_to subject_prefix attach_csv notif
   aws_cli ssm delete-parameter --name "${CONFIG_PATH}${parameter_name}" >/dev/null 2>&1 || true
 done
 info "configuration parameters deleted"
+info "delivery state under ${STATE_PATH} is kept: it records what has already been"
+info "emailed, so a redeploy does not resend a month (delete the parameters by hand"
+info "if you want a clean slate)"
 
 if [ "$DELETE_SES_IDENTITY" = "true" ] && [ -n "$SENDER_ADDRESS" ]; then
   aws_cli sesv2 delete-email-identity --email-identity "$SENDER_ADDRESS" >/dev/null 2>&1 || true

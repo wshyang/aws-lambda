@@ -129,6 +129,7 @@ aws_cli cloudformation deploy \
   --template-file "$APP_TEMPLATE" \
   --parameter-overrides "${PARAMETER_OVERRIDES[@]+"${PARAMETER_OVERRIDES[@]}"}" \
   --capabilities CAPABILITY_NAMED_IAM \
+  --no-fail-on-empty-changeset \
   --tags Application=sap-security-patch-day-notifier
 
 info "stack outputs:"
