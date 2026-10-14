@@ -29,3 +29,4 @@ and `CLAUDE.md` §1.1.
 | [0008](./0008-deployment-parity-cloudformation-and-awscli.md) | CloudFormation and AWS CLI paths describe the same objects, enforced by a parity test | §10 |
 | [0009](./0009-deferred-container-and-shiphats-sections.md) | `GREENFIELD.md` §10.1 (containers) and §10.3 (SHIP-HATS) deferred, with revisit triggers | §10, CLAUDE.md §2 |
 | [0010](./0010-test-provenance-and-validation-status.md) | Test fixture provenance and the exact validation layers run so far | §3, §11 NFR-1 |
+| [0011](./0011-first-live-capture-findings.md) | First live capture: wrong index URL, intro-text boilerplate, two wrong test assumptions | §3 FR-2.3, FR-4 |

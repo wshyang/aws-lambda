@@ -12,6 +12,20 @@ Two kinds of file live here, and the difference matters (see
 | `stale_page.html` | synthetic | A 200 response whose heading claims **September** 2026 while being served for October (`stale_page`). |
 | `hostile_title_cell.html` | synthetic, adversarial | A row whose title cell carries `<script>`, `onclick=`, `javascript:` and `data:` URLs, HTML comments and an `<img>`; the sanitiser must strip all of it (spec FR-5.6). |
 
+## Captured
+
+Raw bytes saved by `scripts/capture-fixture.sh`, in `captured/<date>/` (never edited).
+
+| File | Kind | URL | sha256[:16] |
+| ---- | ---- | --- | ----------- |
+| `captured/2026-10-14/october_2026.html` | **captured** 2026-10 | https://support.sap.com/en/my-support/knowledge-base/security-notes-news/october-2026.html | f37c782a0c36007f |
+| `captured/2026-10-14/security_notes_news_index.html` | **captured** 2026-10 | https://support.sap.com/en/my-support/knowledge-base/security-notes-news.html | ab9feb291dfaa4b0 |
+
+The captured October bulletin has 22 rows (4 Critical / 3 High / 14 Medium / 1 Low), one more
+than the reconstruction, and a different markup layout. The captured index parses to the
+same twelve `Dates for 2026` entries as the reconstruction. The reconstruction has not been
+replaced yet: see [addendum 0011](../../docs/addenda/0011-first-live-capture-findings.md).
+
 ## The rule
 
 **A reconstructed fixture is never presented as a capture.** When

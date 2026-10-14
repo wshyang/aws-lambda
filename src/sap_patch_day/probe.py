@@ -32,7 +32,9 @@ from .notes_table import (
 )
 
 BASE_URL = "https://support.sap.com/en/my-support/knowledge-base/security-notes-news/"
-INDEX_URL = BASE_URL + "security-notes-news.html"
+# The index lives one level above the bulletin directory; the sibling
+# ``security-notes-news/security-notes-news.html`` answers 404 (addendum 0011).
+INDEX_URL = "https://support.sap.com/en/my-support/knowledge-base/security-notes-news.html"
 
 
 @dataclass(frozen=True)

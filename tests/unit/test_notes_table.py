@@ -81,6 +81,20 @@ def test_intro_and_page_title_are_captured(bulletin_root) -> None:  # type: igno
     assert intro.endswith("previously released security notes.")
 
 
+def test_intro_drops_boilerplate_sharing_a_paragraph_with_the_summary() -> None:
+    # The live page puts the boilerplate and the summary in ONE <p>, split by <br />.
+    root = parse(
+        "<p>This post shares the information on security notes. SAP strongly recommends "
+        'that the customer visits the <a href="https://example.test">support portal</a>.<br />\n'
+        "On 13<sup>th</sup> of October 2026, SAP security patch day saw the release of 16 new "
+        "security notes. There are 2 updates to previously released security notes.</p>"
+    )
+    assert extract_intro_text(root) == (
+        "On 13th of October 2026, SAP security patch day saw the release of 16 new "
+        "security notes. There are 2 updates to previously released security notes."
+    )
+
+
 def test_page_claims_month_detects_the_right_and_wrong_month() -> None:
     october = PatchDayMonth(year=2026, month=10)
     assert page_claims_month("SAP Security Patch Day – October 2026", october) is True

@@ -1,0 +1,1253 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <meta name="description" content="The SAP Support Portal page that enables you to review and implement critical SAP Security Notes, plan for upcoming SAP Security Patch Days and read critical SAP Security News"/>
+
+    
+        <meta name="updated_timestamp" content="2026-10-13 08:15:50"/>
+    
+        <meta name="created_timestamp" content="2018-01-17 07:50:09"/>
+    
+        <meta name="sm_tech_ids" content="en,207430454709915121807807,162089707277243130787886,208439490189093937281746"/>
+    
+
+    
+
+    <title>SAP Security Notes &amp; News</title>
+
+    
+        <link rel="icon" type="image/vnd.microsoft.icon" href="/etc/designs/support/favicon.ico"/>
+        <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/etc/designs/support/favicon.ico"/>
+    
+    <script data-ui5-config type="application/json">
+        {
+            "theme": "sap_glow"
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.udex.services.sap.com/dds/design-tokens/latest/css/font-face.css"/>
+
+        
+    <link rel="apple-touch-icon" sizes="60x60" href="/etc/designs/support/clientlib-all/images/icons/apple-touch-icons/touch-icon-60x60.png"/>
+    <link rel="apple-touch-icon" sizes="120x120" href="/etc/designs/support/clientlib-all/images/icons/apple-touch-icons/touch-icon-120x120.png"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="/etc/designs/support/clientlib-all/images/icons/apple-touch-icons/touch-icon-180x180.png"/>
+
+        
+
+    
+
+    
+    
+<link rel="stylesheet" href="/etc/designs/support/clientlib-vue-common.min.07ce3c8a708dabc5d8b9f8ccd9a85fa6.css" type="text/css">
+
+
+
+
+    
+    
+<script src="/etc/designs/fiji-ui-v2/clientlib-bootstrap.min.ca7d520143e848d13a021c32aff920f8.js"></script>
+
+
+
+
+    <!-- Adobe Analytics JS API and JQuery/Bootstrap API MUST be located right after CSS includes -->
+    
+        
+    
+<script src="/etc/designs/support/clientlib-common.min.9ddc032ab8f50f2ead92180663f1c5c0.js"></script>
+<script src="/etc/designs/support/clientlib-adobe-analytics.min.9eb2586d36b60537f362da99e679d9a4.js"></script>
+
+
+
+
+        <script>
+            // Initialize 6Sense event listener and Analytics delete when all done
+            SUPPORT.MainNamespace.EDDLController.init6SenseAndAnalytics();
+
+            document.addEventListener('userInfoInitialized', function (event) {
+                const analyticsData = SUPPORT.MainNamespace.AnalyticsUtils.getAnalyticsData(event.detail);
+                const errorPageType = document.body.getAttribute('data-error-page-type');
+                if (errorPageType) {
+                    analyticsData.errorPageType = errorPageType;
+                }
+                SUPPORT.MainNamespace.EDDLController.initPageReadyAnalytics(analyticsData);
+            });
+        </script>
+
+        <script src="//www.sap.com/tmgr/ccc66c06b30b/e38fcdbbaf56/launch-aa5b671871e7.min.js"></script>
+    
+
+    
+
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+        <p class="browserupgrade">
+            You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your
+            browser</a> to improve your experience.
+        </p>
+        <![endif]-->
+        <nav class="accessibility" aria-label="Skip to Content">
+            <strong>
+                <a href="#middle" tabindex="0" accesskey="S">Skip to Content</a>
+            </strong>
+        </nav>
+        
+    <div class="[ content-wrapper anchor-navigation_adaptive-menu  ]" style="position: relative;">
+        
+    <div class="header-wrapper"><!-- SDI include (path: /content/support/en_us/my-support/knowledge-base/security-notes-news/_jcr_content/supportHeader.nocache.html/support/components/fixed/header, resourceType: support/components/fixed/header) -->
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+    
+    http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<div id="dynamic_include_filter_div_613819"></div>
+<script type="text/javascript">
+jQuery.get("\/content\/support\/en_us\/my-support\/knowledge-base\/security-notes-news\/_jcr_content\/supportHeader.nocache.html\/support\/components\/fixed\/header", 
+	function(data) {
+		jQuery("#dynamic_include_filter_div_613819").replaceWith(data);
+	});
+</script>
+<noscript>Your browser does not support JavaScript. Some components may not be visible.</noscript>
+</div>
+
+    <div class="contactModuleWrapper">
+
+
+
+    
+
+    <button class="contact-module__btn" id="contactModuleBtn" data-cq-component="contact-module" type="button" aria-label="Contact Us">
+        Contact Us
+    </button>
+
+    <div class="contact-module__panel" id="contactModulePanel" role="dialog">
+        <span class="contact-module__panel-close" id="contactModuleClose">&#215;</span>
+        <article class="contact-module__panel-content">
+
+            <header class="contact-module__panel-header">
+                How you can contact us:
+                
+            </header>
+
+            <ul class="contact-module__panel-items">
+                
+
+    
+        
+
+    <li class="contact-module__panel-item" onclick="onBlockClick(event, this);">
+        <div class="contact-module__panel-link">
+            <div class="imageWrapper">
+
+
+    <div class="[ image-wrapper  ]">
+        <div data-cq-component="image" id="image-f65ba52b-9e85-42dd-a7d5-4bb3fab5f260">
+            
+                
+
+                
+                    <div data-fiji-ui-image-container data-alt="product icon" data-link-path="/content/support/en_us/contact-us.html#section_411324132" data-link-target="_self">
+
+                        <div data-src="/en/_jcr_content/contactModule/features/item0.v2adaptto.mobile_small.jpg" data-media="(min-width: 1px)"></div>
+<div data-src="/en/_jcr_content/contactModule/features/item0.v2adaptto.mobile_portrait.jpg" data-media="(min-width: 320px)"></div>
+<div data-src="/en/_jcr_content/contactModule/features/item0.v2adaptto.mobile_landscape.jpg" data-media="(min-width: 321px)"></div>
+<div data-src="/en/_jcr_content/contactModule/features/item0.v2adaptto.tablet_portrait.jpg" data-media="(min-width: 481px)"></div>
+<div data-src="/en/_jcr_content/contactModule/features/item0.v2adaptto.tablet_landscape.jpg" data-media="(min-width: 769px)"></div>
+<div data-src="/en/_jcr_content/contactModule/features/item0.v2adaptto.desktop_hd.jpg" data-media="(min-width: 1025px)"></div>
+<div data-src="/en/_jcr_content/contactModule/features/item0.v2adaptto.desktop_full_hd.jpg" data-media="(min-width: 1367px)"></div>
+<div data-src="/en/_jcr_content/contactModule/features/item0.v2adaptto.full_size.jpg" data-media="(min-width: -1px)"></div>
+
+                    </div>
+
+                    <script async>
+                        $(function() {
+                            var componentElement = document.getElementById("image-f65ba52b-9e85-42dd-a7d5-4bb3fab5f260");
+                            var enableLazyLoading = false;
+                            FIJI_UI.MainNamespace.ImageController.init(componentElement, enableLazyLoading);
+                        });
+                    </script>
+                
+            
+
+            
+        </div>
+    </div>
+</div>
+
+            <a href="/en/contact-us.html#section_411324132" onclick="event.preventDefault();">Product Related Assistance</a>
+            <p>Request product related support from SAP</p>
+        </div>
+    </li>
+
+    <script>
+        function onBlockClick(event, element) {
+            SUPPORT.MainNamespace.ContactUsController.onBlockClick(event, element);
+            SUPPORT.MainNamespace.EDDLController.trackActivityMapEvent(
+                "body|contact-us",
+                "Product Related Assistance",
+                "/content/support/en_us/contact-us.html#section_411324132"
+            );
+        }
+    </script>
+
+
+    
+        
+
+    <li class="contact-module__panel-item" onclick="onBlockClick(event, this);">
+        <div class="contact-module__panel-link">
+            <div class="imageWrapper">
+
+
+    <div class="[ image-wrapper  ]">
+        <div data-cq-component="image" id="image-c561abf0-bc32-4231-aafd-61842175acd4">
+            
+                
+
+                
+                    <div data-fiji-ui-image-container data-alt="contact icons" data-link-path="/content/support/en_us/contact-us.html#section_42886245" data-link-target="_self">
+
+                        <div data-src="/en/_jcr_content/contactModule/features/item1.v2adaptto.mobile_small.jpg" data-media="(min-width: 1px)"></div>
+<div data-src="/en/_jcr_content/contactModule/features/item1.v2adaptto.mobile_portrait.jpg" data-media="(min-width: 320px)"></div>
+<div data-src="/en/_jcr_content/contactModule/features/item1.v2adaptto.mobile_landscape.jpg" data-media="(min-width: 321px)"></div>
+<div data-src="/en/_jcr_content/contactModule/features/item1.v2adaptto.tablet_portrait.jpg" data-media="(min-width: 481px)"></div>
+<div data-src="/en/_jcr_content/contactModule/features/item1.v2adaptto.tablet_landscape.jpg" data-media="(min-width: 769px)"></div>
+<div data-src="/en/_jcr_content/contactModule/features/item1.v2adaptto.desktop_hd.jpg" data-media="(min-width: 1025px)"></div>
+<div data-src="/en/_jcr_content/contactModule/features/item1.v2adaptto.desktop_full_hd.jpg" data-media="(min-width: 1367px)"></div>
+<div data-src="/en/_jcr_content/contactModule/features/item1.v2adaptto.full_size.jpg" data-media="(min-width: -1px)"></div>
+
+                    </div>
+
+                    <script async>
+                        $(function() {
+                            var componentElement = document.getElementById("image-c561abf0-bc32-4231-aafd-61842175acd4");
+                            var enableLazyLoading = false;
+                            FIJI_UI.MainNamespace.ImageController.init(componentElement, enableLazyLoading);
+                        });
+                    </script>
+                
+            
+
+            
+        </div>
+    </div>
+</div>
+
+            <a href="/en/contact-us.html#section_42886245" onclick="event.preventDefault();">Non-Product Related Assistance</a>
+            <p>Request for existing cases, user IDs, Portal navigation support and more</p>
+        </div>
+    </li>
+
+    <script>
+        function onBlockClick(event, element) {
+            SUPPORT.MainNamespace.ContactUsController.onBlockClick(event, element);
+            SUPPORT.MainNamespace.EDDLController.trackActivityMapEvent(
+                "body|contact-us",
+                "Non-Product Related Assistance",
+                "/content/support/en_us/contact-us.html#section_42886245"
+            );
+        }
+    </script>
+
+
+    
+
+
+            </ul>
+
+        </article>
+    </div>
+
+    
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                SUPPORT.MainNamespace.ContactUsController.init();
+            });
+        </script>
+    
+
+</div>
+
+
+        
+    <div class="sectionContainerWrapper">
+
+
+    
+
+    <div data-cq-component="section-container" class="section-container" id="middle">
+        
+
+            
+                
+    <div id="secondary-navigation">
+        <div class="secondary-navigation__wrapper">
+            <div class="vue-root">
+                <community-secondary nav-tab-json="[{&quot;title&quot;:&quot;Overview&quot;,&quot;path&quot;:&quot;#section&quot;},{&quot;title&quot;:&quot;Security Patch Day&quot;,&quot;path&quot;:&quot;#section_370125364&quot;},{&quot;title&quot;:&quot;Resources&quot;,&quot;path&quot;:&quot;#section_1194770574&quot;}]" breadcrumb-json="[{&quot;target&quot;:&quot;_self&quot;,&quot;path&quot;:&quot;/content/support/en_us.html&quot;,&quot;title&quot;:&quot;SAP Support Portal Home&quot;},{&quot;target&quot;:&quot;_self&quot;,&quot;path&quot;:&quot;/content/support/en_us/my-support.html&quot;,&quot;title&quot;:&quot;My Support&quot;},{&quot;target&quot;:&quot;_self&quot;,&quot;path&quot;:&quot;/content/support/en_us/my-support/knowledge-base.html&quot;,&quot;title&quot;:&quot;Knowledge Base&quot;},{&quot;target&quot;:&quot;_self&quot;,&quot;path&quot;:&quot;/content/support/en_us/my-support/knowledge-base/security-notes-news.html&quot;,&quot;title&quot;:&quot;SAP Security Notes \u0026 News&quot;}]" page-heading-json="SAP Security Notes &amp; News" nav-config="{&quot;navigationType&quot;:&quot;Anchor&quot;,&quot;anchorConfig&quot;:{&quot;hash&quot;:false,&quot;key&quot;:&quot;anchorId&quot;}}" breadcrumbs-min-count="3">
+                </community-secondary>
+            </div>
+        </div>
+    </div>
+
+            
+
+            
+
+            <script>
+                $(window).on("load", function () {
+                    FIJI_UI.MainNamespace.SectionContainerController.init();
+                });
+
+            </script>
+        
+
+        <section class="slides">
+            <div class="parsys"><div class="sectionWrapper section">
+
+
+
+    
+
+    
+
+    
+        
+    <main data-cq-component="section" class="[ slide   ]" id="section_1633027198">
+
+        
+
+        
+
+        <div class="container">
+            <div class="parsys"><div class="heroWrapper section">
+
+
+    
+    <div class="vue-root hero-root">
+        <hero-support heading="SAP Security Notes" description="SAP Security Notes contain SAP's expert advice regarding action items and patches to ensure the security of your systems." :search-config="{
+                    defaultSearchSystem: '',
+                    searchTermParameterName: '',
+                    sapForMeSearchPageUrl: '',
+                    sapForMeNoteUrl: '',
+                    openInNewWindow: ''
+                }" cta-links="[{&#34;title&#34;:&#34;Access SAP Security Notes&#34;,&#34;path&#34;:&#34;https://me.sap.com/app/securitynotes&#34;,&#34;tooltip&#34;:&#34;Access SAP Security Notes&#34;,&#34;target&#34;:&#34;_blank&#34;,&#34;buttonStyle&#34;:&#34;Primary&#34;}]" media-player-config="{}" background-image-position="regular" background-color="#FFF3B8" pattern-type="anvilGrid" background-type="pattern">
+        </hero-support>
+    </div>
+
+    <script>
+        document.querySelectorAll('.slides > .parsys > * > .slide').forEach((slide) => {
+            if (slide.querySelector('.hero-root')) {
+                slide.classList.add('has-hero');
+            }
+        });
+    </script>
+</div>
+
+</div>
+
+        </div>
+    </main>
+
+    
+
+    
+
+    <script>
+        $(document).ready(function () {
+            var sectionObj = {
+                "id": "section_1633027198",
+                "slider": "false",
+                "backgroundType": "",
+                "backgroundColor": "",
+                "scrollSpeed": ""
+            };
+            if (false) {
+                sectionObj["sliderConfiguration"] = {};
+            }
+            FIJI_UI.MainNamespace.SectionController.initializeSection(sectionObj);
+        });
+    </script>
+</div>
+<div class="sectionWrapper section">
+
+
+
+    
+
+    
+
+    
+        
+    <main data-cq-component="section" aria-label="Overview" class="[ slide  side-white ]" id="section" data-title="Overview">
+
+        
+
+        
+
+        <div class="container">
+            <div class="parsys"><div class="spacer section">
+
+<div style="height: 25px;"></div></div>
+<div class="rowWrapper section">
+
+
+
+<div data-cq-component="grid-row" class="row row--bg-transparent">
+    
+        <div data-cq-component="grid-cell" class='col-md-6 col-md-offset-0'>
+            <div class="parsys"><div class="promoBoxWrapper section">
+
+
+
+    
+
+    <article class="promo-box" data-cq-component="column-promo-box">
+        <figure class="promo-box__img">
+            <div class="imageWrapper">
+
+
+    <div class="[ image-wrapper  ]">
+        <div data-cq-component="image" id="image-75a6c805-8a8d-4207-90b6-b5fd89b18329">
+            
+                
+
+                
+                    <div data-fiji-ui-image-container data-alt="question and answer" data-title="SAP Security Notes FAQs">
+
+                        <div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item0/promobox/image.v2adaptto.mobile_small.png" data-media="(min-width: 1px)"></div>
+<div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item0/promobox/image.v2adaptto.mobile_portrait.png" data-media="(min-width: 320px)"></div>
+<div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item0/promobox/image.v2adaptto.mobile_landscape.png" data-media="(min-width: 321px)"></div>
+<div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item0/promobox/image.v2adaptto.tablet_portrait.png" data-media="(min-width: 481px)"></div>
+<div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item0/promobox/image.v2adaptto.tablet_landscape.png" data-media="(min-width: 769px)"></div>
+<div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item0/promobox/image.v2adaptto.desktop_hd.png" data-media="(min-width: 1025px)"></div>
+<div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item0/promobox/image.v2adaptto.desktop_full_hd.png" data-media="(min-width: 1367px)"></div>
+<div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item0/promobox/image.v2adaptto.full_size.png" data-media="(min-width: -1px)"></div>
+
+                    </div>
+
+                    <script async>
+                        $(function() {
+                            var componentElement = document.getElementById("image-75a6c805-8a8d-4207-90b6-b5fd89b18329");
+                            var enableLazyLoading = false;
+                            FIJI_UI.MainNamespace.ImageController.init(componentElement, enableLazyLoading);
+                        });
+                    </script>
+                
+            
+
+            
+        </div>
+    </div>
+</div>
+
+        </figure>
+
+        <div class="promo-box__body">
+            <h4>SAP Security Notes FAQs</h4>
+
+            <p>Get your frequently asked questions regarding SAP security patching answered by reviewing our SAP Security Notes FAQs.</p>
+
+
+            <div class="link-wrapper">
+                <div class="linkWrapper">
+
+
+    
+
+    
+        
+            
+
+            
+
+            
+                
+
+                
+                    
+                    
+                
+
+                
+
+                
+                    <a data-cq-component="link" href="/en/my-support/knowledge-base/security-notes-news/security-notes-faqs.html" title="SAP Security Notes FAQ" target="_self" class="[ btn btn-1dx-outline    ]">Read the Security Notes FAQs</a>
+                
+            
+        
+
+        
+    
+</div>
+
+            </div>
+
+            
+        </div>
+    </article>
+</div>
+
+</div>
+
+        </div>
+    
+        <div data-cq-component="grid-cell" class='col-md-6 col-md-offset-0'>
+            <div class="parsys"><div class="promoBoxWrapper section">
+
+
+
+    
+
+    <article class="promo-box" data-cq-component="column-promo-box">
+        <figure class="promo-box__img">
+            <div class="imageWrapper">
+
+
+    <div class="[ image-wrapper  ]">
+        <div data-cq-component="image" id="image-a0c48a61-ffa7-4c1e-bf1e-4d05afbd1119">
+            
+                
+
+                
+                    <div data-fiji-ui-image-container data-alt="cloud and lock" data-title="Report a Possible Security Vulnerability to SAP">
+
+                        <div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item1/promobox/image.v2adaptto.mobile_small.png" data-media="(min-width: 1px)"></div>
+<div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item1/promobox/image.v2adaptto.mobile_portrait.png" data-media="(min-width: 320px)"></div>
+<div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item1/promobox/image.v2adaptto.mobile_landscape.png" data-media="(min-width: 321px)"></div>
+<div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item1/promobox/image.v2adaptto.tablet_portrait.png" data-media="(min-width: 481px)"></div>
+<div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item1/promobox/image.v2adaptto.tablet_landscape.png" data-media="(min-width: 769px)"></div>
+<div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item1/promobox/image.v2adaptto.desktop_hd.png" data-media="(min-width: 1025px)"></div>
+<div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item1/promobox/image.v2adaptto.desktop_full_hd.png" data-media="(min-width: 1367px)"></div>
+<div data-src="/en/my-support/knowledge-base/security-notes-news/_jcr_content/sectionContainer/par/section/par-section/row_643375581_copy/item1/promobox/image.v2adaptto.full_size.png" data-media="(min-width: -1px)"></div>
+
+                    </div>
+
+                    <script async>
+                        $(function() {
+                            var componentElement = document.getElementById("image-a0c48a61-ffa7-4c1e-bf1e-4d05afbd1119");
+                            var enableLazyLoading = false;
+                            FIJI_UI.MainNamespace.ImageController.init(componentElement, enableLazyLoading);
+                        });
+                    </script>
+                
+            
+
+            
+        </div>
+    </div>
+</div>
+
+        </figure>
+
+        <div class="promo-box__body">
+            <h4>Report a security issue to SAP</h4>
+
+            <p>SAP takes all matters relating to your security very seriously, we constantly work on improving our product security measures.</p>
+
+
+            <div class="link-wrapper">
+                <div class="linkWrapper">
+
+
+    
+
+    
+        
+            
+
+            
+
+            
+                
+
+                
+                    
+                    
+                
+
+                
+
+                
+                    <a data-cq-component="link" href="https://me.sap.com/getsupport" title="Report a Vulnerability" target="_blank" class="[ btn btn-1dx-outline    ]" rel="noopener noreferrer">Report a Security Issue<span class="sr-only">(opens in new tab)</span></a>
+                
+            
+        
+
+        
+    
+</div>
+
+            </div>
+
+            
+        </div>
+    </article>
+</div>
+
+</div>
+
+        </div>
+    
+</div></div>
+
+</div>
+
+        </div>
+    </main>
+
+    
+
+    
+
+    <script>
+        $(document).ready(function () {
+            var sectionObj = {
+                "id": "section",
+                "slider": "false",
+                "backgroundType": "OPAQUE",
+                "backgroundColor": "side-white",
+                "scrollSpeed": ""
+            };
+            if (false) {
+                sectionObj["sliderConfiguration"] = {};
+            }
+            FIJI_UI.MainNamespace.SectionController.initializeSection(sectionObj);
+        });
+    </script>
+</div>
+<div class="sectionWrapper section">
+
+
+
+    
+
+    
+
+    
+        
+    <main data-cq-component="section" aria-label="Security Patch Day" class="[ slide  side-white ]" id="section_370125364" data-title="Security Patch Day">
+
+        
+
+        
+
+        <div class="container">
+            <div class="parsys"><div class="headingWrapper section">
+
+
+    
+
+    
+        
+
+        
+        
+        
+        <h2 class='text-start content-width-medium'>SAP Security Patch Day</h2>
+    
+</div>
+<div class="rowWrapper section">
+
+
+
+<div data-cq-component="grid-row" class="row ">
+    
+        <div data-cq-component="grid-cell" class='col-md-9 col-md-offset-0'>
+            <div class="parsys"><div class="spacer section">
+
+<div style="height: 10px;"></div></div>
+<div class="textEditorWrapper section">
+
+<div class="text-editor content-alignment-start" data-cq-component="text-editor">
+    <div class="content-width-large">
+        <p>The security maintenance of installed SAP software is key to continuously protect also against new types of attacks or newly identified potential weaknesses.<br />
+<br />
+Based on feedback from customers, partners and SAP user groups, SAP has launched a regular<b> SAP Security Patch Day</b>, scheduled for the <b>second Tuesday of every month</b> — which has been synchronized with the Security Patch Day of other major software vendors.<br />
+<br />
+On these SAP Patch Days, SAP publishes software corrections as <b>SAP Security Notes</b>, focused solely on security to protect against potential weaknesses or attacks. Access <a href="https://me.sap.com/app/securitynotes" target="_blank" rel="noopener noreferrer">SAP Security Notes in SAP for Me<span class="sr-only">(opens in new tab)</span></a>, then select <i>All Security Notes</i>, to get the complete list of all SAP Security Notes. <b>We recommend that you implement these corrections at a priority</b>. Several tools are available to help identify, select and implement these corrections.<br />
+<br />
+SAP categorizes SAP Security Notes as <i>Patch Day Security Not</i>es and <i>Support Package Security Notes</i>, with the sole purpose of making you focus on important fixes on patch days and the rest to be implemented automatically during SP upgrades. For details refer to the <a href="/en/my-support/knowledge-base/security-notes-news/security-notes-faqs.html">SAP Security Notes FAQ</a>. Security fixes for SAP NetWeaver based products are also delivered with the support packages.<br />
+<br />
+Since June 11, 2019, the following rule is in place:</p>
+<ul>
+<li>SAP will deliver fixes for new SAP Security Notes with high or very high severity</li>
+<li>only for Support Packages shipped within the respective last 24 months*</li>
+<li>if the product version for which that Support Package has been shipped is still in Mainstream or Extended Maintenance.</li>
+</ul>
+<p>As a rule, releases going into Customer-Specific Maintenance will be considered in the first 12 months for notes with high priority (CVSS &gt;= 7.0) which also applies for Support Packages shipped within the last 24 months. Please see <a href="https://me.sap.com/notes/3053725/E">SAP Note 3053725</a> for more information.</p>
+<p>Notes with low or medium priority contain corrections in at least the newest support package in all mainstream and extended maintenance releases.</p>
+<p>*For information on areas with an exception from the 24 months maintenance strategy, refer to the <a href="https://support.sap.com/en/my-support/knowledge-base/security-notes-news/security-notes-faqs.html?anchorId=section_237298869" target="_self" title="exceptions">SAP Security Notes FAQ</a>.</p>
+
+    </div>
+</div></div>
+
+</div>
+
+        </div>
+    
+        <div data-cq-component="grid-cell" class='col-md-3 col-md-offset-0'>
+            <div class="parsys"><div class="panelWrapper section">
+
+
+    
+
+    <div class="panel panel-1dx-blue" data-cq-component="panel" data-analytics-aa-region="body|panel">
+        <div class="panel-heading">
+            <h4 class='panel-title'>
+                Dates for 2026
+            </h4>
+        </div>
+
+        
+            
+            <div class="parsys"><div class="textEditorWrapper section">
+
+<div class="text-editor content-alignment-start" data-cq-component="text-editor">
+    <div class="content-width-large">
+        <p><b>  <a title="January Patch Day Security Note" href="/en/my-support/knowledge-base/security-notes-news/january-2026.html" target="_blank">January 13</a></b></p>
+<p><b>  <a title="February Patch Day Security Note" href="/en/my-support/knowledge-base/security-notes-news/february-2026.html" target="_blank">February 10</a></b></p>
+<p><b>  <a title="March Patch Day Security Notes" href="/en/my-support/knowledge-base/security-notes-news/march-2026.html" target="_blank">March 10</a></b></p>
+<p><b>  <a title="April Patch Day Security Notes" href="/en/my-support/knowledge-base/security-notes-news/april-2026.html" target="_blank">April 14</a></b></p>
+<p><b>  <a title="May Patch Day Security Notes" href="/en/my-support/knowledge-base/security-notes-news/may-2026.html" target="_blank">May 12</a></b></p>
+<p><b>  <a title="June Patch Day Security Notes" href="/en/my-support/knowledge-base/security-notes-news/june-2026.html" target="_blank">June 9</a></b></p>
+<p><b>  <a title="July Patch Day Security Notes" href="/en/my-support/knowledge-base/security-notes-news/july-2026.html" target="_blank">July 14</a></b></p>
+<p><b>  <a title="August Patch Day Security Notes" href="/en/my-support/knowledge-base/security-notes-news/august-2026.html" target="_blank">August 11</a></b></p>
+<p><b>  <a title="September Patch Day Security Notes" href="/en/my-support/knowledge-base/security-notes-news/september-2026.html" target="_blank">September 8</a></b></p>
+<p><b>  <a title="October Patch Day Security Notes" href="/en/my-support/knowledge-base/security-notes-news/october-2026.html" target="_blank">October 13</a></b></p>
+<p><b>  November 10</b></p>
+<p><b>  December 8</b></p>
+
+    </div>
+</div></div>
+
+</div>
+
+        
+
+        
+    </div>
+</div>
+<div class="textEditorWrapper section">
+
+<div class="text-editor content-alignment-start" data-cq-component="text-editor">
+    <div class="content-width-large">
+        <p>For previous years bulletins refer to<br />
+</p>
+<p><b><a title="SAP Security Patch Day Bulletin Archive" href="/en/my-support/knowledge-base/security-notes-news/security-patch-day-archives.html">SAP Security Patch Day Bulletin Archive</a></b></p>
+
+    </div>
+</div></div>
+
+</div>
+
+        </div>
+    
+</div></div>
+
+</div>
+
+        </div>
+    </main>
+
+    
+
+    
+
+    <script>
+        $(document).ready(function () {
+            var sectionObj = {
+                "id": "section_370125364",
+                "slider": "false",
+                "backgroundType": "OPAQUE",
+                "backgroundColor": "side-white",
+                "scrollSpeed": "0"
+            };
+            if (false) {
+                sectionObj["sliderConfiguration"] = {};
+            }
+            FIJI_UI.MainNamespace.SectionController.initializeSection(sectionObj);
+        });
+    </script>
+</div>
+<div class="sectionWrapper section">
+
+
+
+    
+
+    
+
+    
+        
+    <main data-cq-component="section" aria-label="Resources" class="[ slide  side-white ]" id="section_1194770574" data-title="Resources">
+
+        
+
+        
+
+        <div class="container">
+            <div class="parsys"><div class="headingWrapper section">
+
+
+    
+
+    
+        
+
+        
+        
+        
+        <h2 class='text-start content-width-medium'>Resources</h2>
+    
+</div>
+<div class="textLinkListWrapper section">
+
+
+    
+
+    <article class="text-link-wrapper" data-cq-component="text-link-list">
+        <ul role="list" aria-label="Text link list">
+            
+                <li role="listitem" class="text-link__item">
+                    
+    
+
+    
+        
+            
+
+            
+                
+                
+
+                
+
+                
+                    
+                
+
+                
+                    <a data-cq-component="link" href="https://www.sap.com/about/trust-center/security.html" target="_self" class="link  link__with-icon__right slim-arrow-right">SAP Security, Data Protection, and Privacy</a>
+                
+            
+
+            
+        
+
+        
+    
+
+                    <div role="separator" class="support-divider-wrapper" aria-hidden="true">
+                        <span class="divider-wrapper"></span>
+                    </div>
+                </li>
+            
+                <li role="listitem" class="text-link__item">
+                    
+    
+
+    
+        
+            
+
+            
+                
+                
+
+                
+
+                
+                    
+                
+
+                
+                    <a data-cq-component="link" href="/en/my-support/knowledge-base/security-notes-news/security-patch-day-archives.html" target="_self" class="link  link__with-icon__right slim-arrow-right">SAP Security Patch Day Bulletin Archive</a>
+                
+            
+
+            
+        
+
+        
+    
+
+                    <div role="separator" class="support-divider-wrapper" aria-hidden="true">
+                        <span class="divider-wrapper"></span>
+                    </div>
+                </li>
+            
+                <li role="listitem" class="text-link__item">
+                    
+    
+
+    
+        
+            
+
+            
+                
+                
+
+                
+
+                
+                    
+                
+
+                
+                    <a data-cq-component="link" href="/en/my-support/knowledge-base/security-notes-news/security-news-archive.html" target="_self" class="link  link__with-icon__right slim-arrow-right">Security News Archive</a>
+                
+            
+
+            
+        
+
+        
+    
+
+                    <div role="separator" class="support-divider-wrapper" aria-hidden="true">
+                        <span class="divider-wrapper"></span>
+                    </div>
+                </li>
+            
+                <li role="listitem" class="text-link__item">
+                    
+    
+
+    
+        
+            
+
+            
+                
+                
+
+                
+
+                
+                    
+                
+
+                
+                    <a data-cq-component="link" href="/en/security-whitepapers.html" target="_self" class="link  link__with-icon__right slim-arrow-right">Security White Papers</a>
+                
+            
+
+            
+        
+
+        
+    
+
+                    <div role="separator" class="support-divider-wrapper" aria-hidden="true">
+                        <span class="divider-wrapper"></span>
+                    </div>
+                </li>
+            
+                <li role="listitem" class="text-link__item">
+                    
+    
+
+    
+        
+            
+
+            
+                
+                
+
+                
+
+                
+                    
+                
+
+                
+                    <a data-cq-component="link" href="https://www.sap.com/community/topics/security.html" target="_self" class="link  link__with-icon__right slim-arrow-right">SAP Security Community</a>
+                
+            
+
+            
+        
+
+        
+    
+
+                    <div role="separator" class="support-divider-wrapper" aria-hidden="true">
+                        <span class="divider-wrapper"></span>
+                    </div>
+                </li>
+            
+                <li role="listitem" class="text-link__item">
+                    
+    
+
+    
+        
+            
+
+            
+                
+                
+
+                
+
+                
+                    
+                
+
+                
+                    <a data-cq-component="link" href="/en/offerings-programs/support-services/security-optimization-services-portfolio.html" target="_self" class="link  link__with-icon__right slim-arrow-right">SAP Security Optimization Services</a>
+                
+            
+
+            
+        
+
+        
+    
+
+                    <div role="separator" class="support-divider-wrapper" aria-hidden="true">
+                        <span class="divider-wrapper"></span>
+                    </div>
+                </li>
+            
+                <li role="listitem" class="text-link__item">
+                    
+    
+
+    
+        
+            
+
+            
+                
+                
+
+                
+
+                
+                    
+                
+
+                
+                    <a data-cq-component="link" href="/en/offerings-programs/support-services/security-optimization-services-portfolio.html" target="_self" class="link  link__with-icon__right slim-arrow-right">SAP Security Notes Monthly Webinar and Advisories</a>
+                
+            
+
+            
+        
+
+        
+    
+
+                    <div role="separator" class="support-divider-wrapper" aria-hidden="true">
+                        <span class="divider-wrapper"></span>
+                    </div>
+                </li>
+            
+        </ul>
+    </article>
+</div>
+
+</div>
+
+        </div>
+    </main>
+
+    
+
+    
+
+    <script>
+        $(document).ready(function () {
+            var sectionObj = {
+                "id": "section_1194770574",
+                "slider": "false",
+                "backgroundType": "OPAQUE",
+                "backgroundColor": "side-white",
+                "scrollSpeed": "0"
+            };
+            if (false) {
+                sectionObj["sliderConfiguration"] = {};
+            }
+            FIJI_UI.MainNamespace.SectionController.initializeSection(sectionObj);
+        });
+    </script>
+</div>
+
+</div>
+
+        </section>
+    </div>
+</div>
+
+
+        
+    <div class="contentFeedback">
+    
+    <div class="vue-root" data-cq-component="content-feedback">
+        <content-feedback survey-language="EN" country-url="https://www.sap.com/etc/designs/sapdx/clientlib-ip-detection/js/getCountryCode.json">
+        </content-feedback>
+    </div>
+</div>
+
+    <div class="footer">
+
+
+
+
+
+    <div class="vue-root" id="ds-footer" role="contentinfo" aria-label="Footer">
+        <community-footer contact-us-link="/content/support/en_us/contact-us.html" social-links="[{&quot;name&quot;:&quot;facebook&quot;,&quot;iconUrl&quot;:&quot;https://cdn.udex.services.sap.com/dds/design-tokens/assets/icons/facebook.svg&quot;,&quot;url&quot;:&quot;https://www.facebook.com/SAP&quot;,&quot;target&quot;:&quot;_blank&quot;},{&quot;name&quot;:&quot;youtube&quot;,&quot;iconUrl&quot;:&quot;https://cdn.udex.services.sap.com/dds/design-tokens/assets/icons/youtube.svg&quot;,&quot;url&quot;:&quot;https://www.youtube.com/user/SAPSupportInfo&quot;,&quot;target&quot;:&quot;_blank&quot;},{&quot;name&quot;:&quot;linkedin&quot;,&quot;iconUrl&quot;:&quot;https://cdn.udex.services.sap.com/dds/design-tokens/assets/icons/linkedin.svg&quot;,&quot;url&quot;:&quot;https://www.linkedin.com/company/sap&quot;,&quot;target&quot;:&quot;_blank&quot;}]" quick-links="[{&quot;title&quot;:&quot;Get Support (SAP for Me login)&quot;,&quot;url&quot;:&quot;https://me.sap.com/getsupport&quot;,&quot;target&quot;:&quot;_blank&quot;},{&quot;title&quot;:&quot;Products Documentation (Help Portal)&quot;,&quot;url&quot;:&quot;https://help.sap.com&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;SAP Community&quot;,&quot;url&quot;:&quot;https://community.sap.com/&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;My Trust Center&quot;,&quot;url&quot;:&quot;/content/support/en_us/my-support/trust-center.html&quot;,&quot;target&quot;:&quot;_self&quot;}]" trending-links="[{&quot;title&quot;:&quot;SAP Connect&quot;,&quot;url&quot;:&quot;//www.sap.com/events/connect.html&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;SAP TechEd&quot;,&quot;url&quot;:&quot;//www.sap.com/events/teched.html&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;AI platform&quot;,&quot;url&quot;:&quot;//www.sap.com/products/ai-platform.html&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;Artificial Intelligence&quot;,&quot;url&quot;:&quot;//www.sap.com/products/artificial-intelligence.html&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;RISE with SAP&quot;,&quot;url&quot;:&quot;//www.sap.com/products/erp/rise.html&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;Midsize business solutions&quot;,&quot;url&quot;:&quot;//www.sap.com/products/erp/grow.html&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;Sustainability&quot;,&quot;url&quot;:&quot;//www.sap.com/products/sustainability.html&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;Partner ecosystem&quot;,&quot;url&quot;:&quot;https://partneredge.sap.com/en.html&quot;,&quot;target&quot;:&quot;_blank&quot;}]" about-links="[{&quot;title&quot;:&quot;Company information&quot;,&quot;url&quot;:&quot;//www.sap.com/about/company.html&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;Worldwide directory&quot;,&quot;url&quot;:&quot;//www.sap.com/about/company/office-locations.html&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;Investor Relations&quot;,&quot;url&quot;:&quot;https://www.sap.com/investors/en.html&quot;,&quot;target&quot;:&quot;_blank&quot;},{&quot;title&quot;:&quot;Careers&quot;,&quot;url&quot;:&quot;https://jobs.sap.com/?utm_source\u003dCareerSite\u0026utm_campaign\u003dCorpSite_FT&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;News and press&quot;,&quot;url&quot;:&quot;https://news.sap.com/&quot;,&quot;target&quot;:&quot;_blank&quot;},{&quot;title&quot;:&quot;Blogs and resources&quot;,&quot;url&quot;:&quot;https://www.sap.com/topics&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;Events&quot;,&quot;url&quot;:&quot;//www.sap.com/events.html&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;Customer stories&quot;,&quot;url&quot;:&quot;//www.sap.com/about/customer-stories.html&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;Newsletter&quot;,&quot;url&quot;:&quot;//www.sap.com/dashboard/newsletters.html&quot;,&quot;target&quot;:&quot;_self&quot;}]" site-information-links="[{&quot;title&quot;:&quot;Terms of Use&quot;,&quot;url&quot;:&quot;https://support.sap.com/en/terms-of-use.html&quot;,&quot;target&quot;:&quot;_blank&quot;},{&quot;title&quot;:&quot;Privacy&quot;,&quot;url&quot;:&quot;https://www.sap.com/about/legal/privacy.html&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;Copyright&quot;,&quot;url&quot;:&quot;https://www.sap.com/about/legal/copyright.html&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;Legal Disclosure&quot;,&quot;url&quot;:&quot;https://www.sap.com/about/legal/impressum.html&quot;,&quot;target&quot;:&quot;_self&quot;},{&quot;title&quot;:&quot;Trademark&quot;,&quot;url&quot;:&quot;https://www.sap.com/about/legal/trademark.html&quot;,&quot;target&quot;:&quot;_self&quot;}]">
+        </community-footer>
+    </div>
+
+</div>
+
+    <div class="alertBarWrapper">
+    
+    
+        
+    
+</div>
+
+
+    
+    <div class="truste">
+        <div id="teconsent"></div>
+    </div>
+
+    <script type="text/javascript">
+        function showCookie() {
+            $("#teconsent").removeClass("hidden-cookie");
+            $("#teconsent").addClass("show-cookie");
+        }
+
+        function hideCookie() {
+            $("#teconsent").removeClass("show-cookie");
+            $("#teconsent").addClass("hidden-cookie");
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const element = document.getElementById('teconsent');
+
+            if (element) {
+                let counter = 0;
+                $("#teconsent").addClass("show-cookie");
+
+                const intervalFunction = setInterval(() => { // check exist footer and apply the cookie preferences DIGITAL-28382
+                    const linkExists = Array.from(element.children).some((el) =>
+                        (el.role == "link") || (el.tagName == "A"));
+                    counter++;
+                    if (linkExists) {
+                        window.trustyLinkExists = true;
+                    }
+                    if (linkExists && document.getElementById("udex-footer") && window.footerLoaded) {
+                        document.dispatchEvent(new Event('enableCookiePreferences'));
+                        hideCookie();
+                        document.addEventListener('openCookiePreferences', () => {
+                            $('#teconsent a').get(0).click();
+                            event.preventDefault();
+                        });
+                        clearInterval(intervalFunction);
+                    } else {
+                        showCookie();
+                    }
+
+                    if (counter > 60) {
+                        clearInterval(intervalFunction);
+                    }
+                }, 1000);
+            }
+
+        });
+    </script>
+
+    
+
+    </div>
+    
+
+
+	<script>
+			$(document).on('userInfoComponentInitialized', function() {
+				var arr = [{"oldLink":"https://go.support.sap.com/contactus/#/chat","newLink":"https://go.support.sap.com/contactus/redirect.html?redirect=contactus&paramters=%23chat"},{"oldLink":"https://go.support.sap.com/contactus/#/email","newLink":"https://go.support.sap.com/contactus/redirect.html?redirect=contactus&paramters=%23email"}];
+				SUPPORT.MainNamespace.linkTransformerController.transformLinks(arr);
+			});
+	</script>
+
+
+        
+
+    
+    
+<script src="/etc/designs/fiji-ui-v2/clientlib-all.min.35aa6e6b0be713c073ac850ac5dcfccc.js"></script>
+<script src="/etc/designs/support/clientlib-mutation-summary.min.a9f9736f45da5d1295ce36b369bb38f4.js"></script>
+<script src="/etc/designs/support/clientlib-mutation-observer.min.524d8c2737e924bc0010054e6d059278.js"></script>
+<script src="/etc/designs/support/clientlib-all.min.8949f737ec64840ee4c874e3a4683d18.js"></script>
+<script src="/etc/designs/support/clientlib-vue-all.min.132006021d3c4260903a5c9a0e5f8f54.js"></script>
+
+
+
+
+    
+        
+            
+    <div class="trackingCode">
+        
+        <script>
+            <!--/* TODO clean up after moving to Launch Analytics */-->
+            try {
+                // window.s comes from 3rd-party script, so this shouldn't be changed
+                let s = window.s || {};
+                <!--/* START CUSTOM CODING */-->
+                <!--/* (Any custom code should go in here) */-->
+                let idsContext = FIJI_UI.MainNamespace.IDSContext(
+                    "support",
+                    "SUPPORT_IDS_PROD"
+                );
+                if (!idsContext.isAnonymous()) {
+                    s.prop9 = 'logY';
+                }
+                idsContext.getUser("/bin/fiji/es/user", (responseUser) => {
+                    document.dispatchEvent(new CustomEvent('userInfoInitialized', {
+                        detail: responseUser
+                    }));
+                });
+                if ("" === "404") {
+                    s.pageType = 'errorPage';
+                }
+                <!--/* END CUSTOM CODING */-->
+            } catch (e) {}
+        </script>
+    </div>
+    <script type="text/javascript">_satellite.pageBottom();</script>
+
+        
+
+        
+    
+
+    </body>
+</html>

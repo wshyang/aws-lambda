@@ -71,8 +71,19 @@ def extract_intro_text(root: Node) -> str:
         if INTRO_MARKER not in text.lower():
             continue
         if _is_deepest_match(node, INTRO_MARKER):
-            return clean_text(text)
+            return _summary_lines(node)
     return ""
+
+
+def _summary_lines(node: Node) -> str:
+    """The ``<br>``-separated line(s) from the marker on (addendum 0011).
+
+    The live page shares one paragraph between SAP's standing boilerplate and
+    the month's summary, separated only by ``<br />``.
+    """
+    lines = [clean_text(line) for line in text_with_breaks(node).split("\n")]
+    start = next(i for i, line in enumerate(lines) if INTRO_MARKER in line.lower())
+    return " ".join(line for line in lines[start:] if line)
 
 
 def extract_page_title(root: Node) -> str:

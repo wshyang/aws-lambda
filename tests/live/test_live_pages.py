@@ -117,11 +117,13 @@ def test_a_probe_of_the_newest_month_reports_it_as_published() -> None:
     assert check.bulletin.intro_text, "SAP's summary sentence is no longer on the page"
 
 
-def test_the_sanitised_title_cells_keep_their_note_links() -> None:
+def test_the_sanitised_title_cells_keep_their_cve_links() -> None:
+    # The note's own link is column 1 (note_url); the title cell carries the CVE links.
     _, body = bulletin_page()
     notes = extract_notes_table(parse(body))
-    linked = [note for note in notes if f'href="{note.note_url}"' in note.title_html]
-    assert linked, "no note row kept its own link after sanitising"
+    assert all(note.note_url.startswith("https://") for note in notes)
+    linked = [note for note in notes if 'href="https://www.cve.org/' in note.title_html]
+    assert linked, "no title cell kept its CVE link after sanitising"
     for note in notes:
         assert "<script" not in note.title_html.lower()
         assert "onerror" not in note.title_html.lower()

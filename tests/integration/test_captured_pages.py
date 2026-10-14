@@ -60,6 +60,8 @@ def test_a_captured_page_is_never_empty_or_an_error_page(page: Path) -> None:
     lowered = body.lower()
     for marker in ("access denied", "page not found", "502 bad gateway"):
         assert marker not in lowered, f"{page_id(page)} looks like an error page"
+    if page.name.startswith("security_notes_news_index"):
+        return  # the index has no summary sentence; its 'Dates for' parse is asserted above
     intro = extract_intro_text(parse(body))
     assert intro or "note#" in lowered, (
         f"{page_id(page)} has neither a summary sentence nor a notes table"
