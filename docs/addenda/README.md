@@ -30,3 +30,5 @@ and `CLAUDE.md` §1.1.
 | [0009](./0009-deferred-container-and-shiphats-sections.md) | `GREENFIELD.md` §10.1 (containers) and §10.3 (SHIP-HATS) deferred, with revisit triggers | §10, CLAUDE.md §2 |
 | [0010](./0010-test-provenance-and-validation-status.md) | Test fixture provenance and the exact validation layers run so far | §3, §11 NFR-1 |
 | [0011](./0011-first-live-capture-findings.md) | First live capture: wrong index URL, intro-text boilerplate, two wrong test assumptions | §3 FR-2.3, FR-4 |
+| [0012](./0012-local-ses-testing.md) | Local SES testing through Floci (replaced LocalStack: licence token and TLS-inspection blocker): `--ses-endpoint`, compose file, `scripts/local-aws.sh` | §3 FR-3.9, FR-5 |
+| [0013](./0013-local-ssm-parameters.md) | Local SSM through Floci: `--ssm-endpoint`, `local-aws.sh init/params` reusing the deploy script | §9, 0004 |

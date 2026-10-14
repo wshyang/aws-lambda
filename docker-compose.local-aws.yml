@@ -1,0 +1,14 @@
+# Floci: a free, MIT-licensed local AWS emulator, used for SES and SSM
+# (docs/addenda/0012). No account and no auth token.
+#
+#   scripts/local-aws.sh up
+#
+# Nothing here is deployed; the Lambda artefact never reads this file. The image
+# tag is pinned (no `latest`, CLAUDE.md §1.8).
+services:
+  floci:
+    image: floci/floci:2.2.0
+    container_name: sap-patch-day-floci
+    ports:
+      # Loopback only: the emulator accepts any credentials.
+      - "127.0.0.1:4566:4566"

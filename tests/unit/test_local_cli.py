@@ -11,13 +11,17 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import boto3
 import pytest
+from botocore.client import BaseClient
+from botocore.exceptions import ClientError
+from botocore.stub import Stubber
 
 from sap_patch_day import local_cli
 from sap_patch_day.httpclient import StaticHttpClient, UrllibHttpClient
-from sap_patch_day.mailer import LoggingMailer
+from sap_patch_day.mailer import LoggingMailer, SesMailer
 from sap_patch_day.models import PatchDayMonth
-from sap_patch_day.state import InMemoryStateStore
+from sap_patch_day.state import InMemoryStateStore, SsmStateStore
 from tests.support.pages import FIXTURE_DIR
 
 OCTOBER_FIXTURE = FIXTURE_DIR / "october_2026.html"
@@ -138,3 +142,141 @@ def test_the_dry_run_does_not_run_the_watchdog_by_default(
 ) -> None:
     local_cli.main(["--target", "2026-10"])
     assert '"run_mode": "delivery"' not in capsys.readouterr().out
+
+
+def test_without_an_endpoint_the_mailer_only_logs() -> None:
+    assert isinstance(local_cli._mailer("", "sender@example.test"), LoggingMailer)
+
+
+def test_the_local_client_targets_the_given_endpoint() -> None:
+    client = local_cli._local_client("sesv2", "http://localhost:4566")
+    assert client.meta.endpoint_url == "http://localhost:4566"
+
+
+def test_an_endpoint_selects_the_real_ses_adapter(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Only the network call to an emulator that is not running here is replaced.
+    monkeypatch.setattr(local_cli, "_verify_sender", lambda *_: None)
+    mailer = local_cli._mailer("http://localhost:4566", "sender@example.test")
+    assert isinstance(mailer, SesMailer)
+
+
+def test_the_sender_identity_is_created_so_the_local_ses_accepts_it() -> None:
+    client = stubbed_sesv2()
+    with Stubber(client) as stubber:
+        stubber.add_response("create_email_identity", {}, {"EmailIdentity": "a@example.test"})
+        local_cli._verify_sender(client, "a@example.test", ENDPOINT)
+        stubber.assert_no_pending_responses()
+
+
+def test_an_already_verified_sender_is_not_an_error() -> None:
+    client = stubbed_sesv2()
+    with Stubber(client) as stubber:
+        stubber.add_client_error("create_email_identity", "AlreadyExistsException")
+        local_cli._verify_sender(client, "a@example.test", ENDPOINT)
+
+
+def test_any_other_identity_failure_is_not_swallowed() -> None:
+    client = stubbed_sesv2()
+    with Stubber(client) as stubber:
+        stubber.add_client_error("create_email_identity", "BadRequestException")
+        with pytest.raises(ClientError):
+            local_cli._verify_sender(client, "a@example.test", ENDPOINT)
+
+
+ENDPOINT = "http://localhost:4566"
+
+
+def stubbed_sesv2() -> BaseClient:
+    return boto3.client(
+        "sesv2",
+        region_name="ap-southeast-1",
+        aws_access_key_id="test",
+        aws_secret_access_key="test",
+    )
+
+
+def test_an_unreachable_endpoint_says_how_to_start_it() -> None:
+    client = local_cli._local_client("sesv2", "http://127.0.0.1:9")
+    with pytest.raises(SystemExit, match="is the local emulator running"):
+        local_cli._verify_sender(client, "a@example.test", "http://127.0.0.1:9")
+
+
+def stubbed_ssm() -> BaseClient:
+    return boto3.client(
+        "ssm",
+        region_name="ap-southeast-1",
+        aws_access_key_id="test",
+        aws_secret_access_key="test",
+    )
+
+
+def test_seeding_writes_the_names_and_types_the_deployment_scripts_write() -> None:
+    client = stubbed_ssm()
+    with Stubber(client) as stubber:
+        stubber.add_response(
+            "put_parameter",
+            {},
+            {"Name": "/p/sender", "Value": "a@example.test", "Type": "String", "Overwrite": True},
+        )
+        stubber.add_response(
+            "put_parameter",
+            {},
+            {
+                "Name": "/p/recipients",
+                "Value": "b@example.test,c@example.test",
+                "Type": "StringList",
+                "Overwrite": True,
+            },
+        )
+        local_cli._seed_ssm(
+            client,
+            "/p",
+            {"sender": "a@example.test", "recipients": "b@example.test,c@example.test"},
+        )
+        stubber.assert_no_pending_responses()
+
+
+def test_the_configuration_is_read_back_from_ssm_not_taken_from_the_arguments() -> None:
+    client = stubbed_ssm()
+    parsed = options("--sender", "a@example.test", "--recipients", "b@example.test")
+    with Stubber(client) as stubber:
+        for name, kind, value in (
+            ("sender", "String", "a@example.test"),
+            ("recipients", "StringList", "b@example.test"),
+        ):
+            stubber.add_response(
+                "put_parameter",
+                {},
+                {
+                    "Name": f"/sap-security-patch-day/{name}",
+                    "Value": value,
+                    "Type": kind,
+                    "Overwrite": True,
+                },
+            )
+        stubber.add_response(
+            "get_parameters_by_path",
+            {
+                "Parameters": [
+                    {"Name": "/sap-security-patch-day/sender", "Value": "from-ssm@example.test"}
+                ]
+            },
+            {"Path": "/sap-security-patch-day/", "Recursive": False, "WithDecryption": False},
+        )
+        values = local_cli._config_values(parsed, client)
+    assert values == {"sender": "from-ssm@example.test"}
+
+
+def test_without_an_ssm_endpoint_the_state_stays_in_memory() -> None:
+    assert isinstance(local_cli._state_store(None, "/s/"), InMemoryStateStore)
+
+
+def test_an_ssm_endpoint_keeps_the_state_in_ssm() -> None:
+    assert isinstance(local_cli._state_store(stubbed_ssm(), "/s/"), SsmStateStore)
+
+
+def test_an_unreachable_ssm_endpoint_says_how_to_start_it() -> None:
+    parsed = options("--ssm-endpoint", "http://127.0.0.1:9")
+    client = local_cli._local_client("ssm", "http://127.0.0.1:9")
+    with pytest.raises(SystemExit, match="is the local emulator running"):
+        local_cli._config_values(parsed, client)
