@@ -1,0 +1,515 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  SAP Security Patch Day notifier: a Lambda on the second Tuesday of each month
+  (Singapore time) that detects publication of SAP's monthly security notes,
+  extracts the notes table and emails it through Amazon SES.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Function
+        Parameters:
+          - FunctionName
+          - Runtime
+          - Architecture
+          - MemorySize
+          - TimeoutSeconds
+          - LogRetentionDays
+      - Label:
+          default: Deployment package
+        Parameters:
+          - ArtifactBucket
+          - ArtifactKey
+      - Label:
+          default: Mail
+        Parameters:
+          - SenderEmailAddress
+          - RecipientEmails
+          - ReplyToAddress
+          - CreateSesIdentity
+          - ConfigurationSetName
+      - Label:
+          default: Configuration storage
+        Parameters:
+          - ConfigParameterPath
+          - StateParameterPath
+          - SubjectPrefix
+          - AttachCsv
+          - NotifyWhenNotPublished
+      - Label:
+          default: Schedule
+        Parameters:
+          - DeliveryScheduleExpression
+          - WatchdogScheduleExpression
+          - EnableWatchdog
+          - RetryWindowEndSgt
+      - Label:
+          default: Alerting
+        Parameters:
+          - AlarmNotificationEmail
+    ParameterLabels:
+      FunctionName:
+        default: Lambda function name
+
+Parameters:
+  FunctionName:
+    Type: String
+    Default: sap-security-patch-day-notifier
+    AllowedPattern: "^[A-Za-z0-9-_]{1,64}$"
+    Description: Name of the Lambda function and of its log group.
+
+  ArtifactBucket:
+    Type: String
+    Description: Bucket created by the bootstrap stack (or 01-artifact-bucket.sh).
+    MinLength: 3
+
+  ArtifactKey:
+    Type: String
+    Default: sap-security-patch-day-notifier.zip
+    Description: Key of the deployment package inside the artefact bucket.
+
+  Runtime:
+    Type: String
+    Default: python3.12
+    AllowedValues: [python3.12, python3.13]
+    Description: Lambda runtime. The code supports 3.11 or later; the runtime is pinned here.
+
+  Architecture:
+    Type: String
+    Default: arm64
+    AllowedValues: [arm64, x86_64]
+
+  MemorySize:
+    Type: Number
+    Default: 256
+    MinValue: 128
+    MaxValue: 3008
+
+  TimeoutSeconds:
+    Type: Number
+    Default: 60
+    MinValue: 3
+    MaxValue: 900
+
+  LogRetentionDays:
+    Type: Number
+    Default: 90
+    AllowedValues: [1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1096, 1827, 2192, 2557, 2922, 3288, 3653]
+
+  SenderEmailAddress:
+    Type: String
+    AllowedPattern: "^[^@\\s]+@[^@\\s]+\\.[A-Za-z]{2,}$"
+    Description: Verified SES identity the notes are sent from.
+
+  RecipientEmails:
+    Type: CommaDelimitedList
+    Default: ""
+    Description: >-
+      Addresses seeded into the recipients parameter at deploy time. After the
+      first deployment, edit the SSM parameter directly; if you then update this
+      stack, pass the current list or the update will revert the parameter.
+
+  ReplyToAddress:
+    Type: String
+    Default: ""
+    Description: Optional reply-to address.
+
+  CreateSesIdentity:
+    Type: String
+    Default: "true"
+    AllowedValues: ["true", "false"]
+    Description: >-
+      Create the SES identity for the sender address. Set to false when the
+      identity already exists in this region or is verified elsewhere.
+
+  ConfigurationSetName:
+    Type: String
+    Default: sap-security-patch-day
+    AllowedPattern: "^[A-Za-z0-9_-]{1,64}$"
+    Description: SES configuration set used for reputation metrics.
+
+  ConfigParameterPath:
+    Type: String
+    Default: /sap-security-patch-day/
+    AllowedPattern: "^/.*/$"
+    Description: SSM path holding the configuration (recipients, sender, policy).
+
+  StateParameterPath:
+    Type: String
+    Default: /sap-security-patch-day/state/
+    AllowedPattern: "^/.*/$"
+    Description: >-
+      SSM path the function writes delivery state to. These parameters are
+      created by the function on its first run and are deliberately not managed
+      here, so a stack update can never revert the record of what was sent.
+
+  SubjectPrefix:
+    Type: String
+    Default: "[SAP Security Patch Day]"
+    MaxLength: 60
+
+  AttachCsv:
+    Type: String
+    Default: "false"
+    AllowedValues: ["true", "false"]
+
+  NotifyWhenNotPublished:
+    Type: String
+    Default: "true"
+    AllowedValues: ["true", "false"]
+
+  DeliveryScheduleExpression:
+    Type: String
+    Default: "cron(0,30 8-12 ? * TUE#2 *)"
+    Description: >-
+      EventBridge cron in UTC. Retry window: 16:00-20:30 Singapore time on the
+      second Tuesday of each month.
+
+  WatchdogScheduleExpression:
+    Type: String
+    Default: "cron(0 1 ? * WED#2 *)"
+    Description: Second Wednesday at 09:00 Singapore time.
+
+  EnableWatchdog:
+    Type: String
+    Default: "true"
+    AllowedValues: ["true", "false"]
+    Description: Email the recipients when a month produced no delivery at all.
+
+  RetryWindowEndSgt:
+    Type: String
+    Default: "20:30"
+    Description: >-
+      Singapore-time boundary used to label the final attempt. Keep it equal to
+      the last slot of DeliveryScheduleExpression, or several attempts become
+      "final" (the notice is still sent once per month).
+    AllowedPattern: "^([01]?[0-9]|2[0-3]):[0-5][0-9]$"
+
+  AlarmNotificationEmail:
+    Type: String
+    Default: ""
+    Description: >-
+      Optional address subscribed to the alarm topic. Leave empty to publish
+      alarms to the topic without a subscriber.
+
+Conditions:
+  HasRecipients: !Not [!Equals [!Join ["", !Ref RecipientEmails], ""]]
+  HasReplyTo: !Not [!Equals [!Ref ReplyToAddress, ""]]
+  HasAlarmEmail: !Not [!Equals [!Ref AlarmNotificationEmail, ""]]
+  CreateIdentity: !Equals [!Ref CreateSesIdentity, "true"]
+  WatchdogEnabled: !Equals [!Ref EnableWatchdog, "true"]
+
+Resources:
+  # ---------------------------------------------------------------- logging
+  FunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${FunctionName}"
+      RetentionInDays: !Ref LogRetentionDays
+
+  # ------------------------------------------------------------ permissions
+  FunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${FunctionName}-role"
+      Description: Execution role for the SAP Security Patch Day notifier.
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: sap-security-patch-day-notifier
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: WriteOwnLogs
+                Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "${FunctionLogGroup.Arn}:*"
+              - Sid: ReadConfiguration
+                Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                  - ssm:GetParametersByPath
+                Resource: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter${ConfigParameterPath}*"
+              - Sid: WriteDeliveryState
+                Effect: Allow
+                Action:
+                  - ssm:PutParameter
+                Resource: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter${StateParameterPath}*"
+              - Sid: SendPatchDayMail
+                Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                # Both resources are needed: the identity is who we send as, and
+                # the configuration set is named in every request, so the caller
+                # needs permission to use it (SES v2 authorization).
+                Resource:
+                  - !Sub "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/${SenderEmailAddress}"
+                  - !Sub "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/${ConfigurationSetName}"
+              - Sid: PublishTraces
+                Effect: Allow
+                Action:
+                  - xray:PutTraceSegments
+                  - xray:PutTelemetryRecords
+                Resource: "*"
+      Tags:
+        - Key: Application
+          Value: sap-security-patch-day-notifier
+
+  # ----------------------------------------------------------------- e-mail
+  SesConfigurationSet:
+    Type: AWS::SES::ConfigurationSet
+    Properties:
+      Name: !Ref ConfigurationSetName
+      ReputationOptions:
+        ReputationMetricsEnabled: true
+      SendingOptions:
+        SendingEnabled: true
+
+  SesEmailIdentity:
+    Type: AWS::SES::EmailIdentity
+    Condition: CreateIdentity
+    Properties:
+      EmailIdentity: !Ref SenderEmailAddress
+      ConfigurationSetAttributes:
+        ConfigurationSetName: !Ref ConfigurationSetName
+
+  SnsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "${FunctionName}-alerts"
+      DisplayName: SAP Security Patch Day alerts
+
+  SnsTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref SnsTopic
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowCloudWatchAlarmsToPublish
+            Effect: Allow
+            Principal:
+              Service: cloudwatch.amazonaws.com
+            Action: sns:Publish
+            Resource: !Ref SnsTopic
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+
+  AlarmEmailSubscription:
+    Type: AWS::SNS::Subscription
+    Condition: HasAlarmEmail
+    Properties:
+      TopicArn: !Ref SnsTopic
+      Protocol: email
+      Endpoint: !Ref AlarmNotificationEmail
+
+  # ------------------------------------------------------------ configuration
+  SenderParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "${ConfigParameterPath}sender"
+      Type: String
+      Value: !Ref SenderEmailAddress
+      Description: SES sender identity for the monthly security notes email.
+
+  RecipientsParameter:
+    Type: AWS::SSM::Parameter
+    Condition: HasRecipients
+    Properties:
+      Name: !Sub "${ConfigParameterPath}recipients"
+      Type: StringList
+      Value: !Join [",", !Ref RecipientEmails]
+      Description: Recipients of the monthly SAP Security Notes email.
+
+  ReplyToParameter:
+    Type: AWS::SSM::Parameter
+    Condition: HasReplyTo
+    Properties:
+      Name: !Sub "${ConfigParameterPath}reply_to"
+      Type: String
+      Value: !Ref ReplyToAddress
+
+  SubjectPrefixParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "${ConfigParameterPath}subject_prefix"
+      Type: String
+      Value: !Ref SubjectPrefix
+
+  AttachCsvParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "${ConfigParameterPath}attach_csv"
+      Type: String
+      Value: !Ref AttachCsv
+
+  NotifyWhenNotPublishedParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "${ConfigParameterPath}notify_when_not_published"
+      Type: String
+      Value: !Ref NotifyWhenNotPublished
+
+  # -------------------------------------------------------------------- code
+  NotifierFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: FunctionLogGroup
+    Properties:
+      FunctionName: !Ref FunctionName
+      Description: SAP Security Patch Day detection and notification.
+      Runtime: !Ref Runtime
+      Architectures:
+        - !Ref Architecture
+      Handler: sap_patch_day.handler.lambda_handler
+      MemorySize: !Ref MemorySize
+      Timeout: !Ref TimeoutSeconds
+      Role: !GetAtt FunctionRole.Arn
+      Code:
+        S3Bucket: !Ref ArtifactBucket
+        S3Key: !Ref ArtifactKey
+      TracingConfig:
+        Mode: Active
+      LoggingConfig:
+        LogFormat: JSON
+      Environment:
+        Variables:
+          SSM_CONFIG_PATH: !Ref ConfigParameterPath
+          SSM_STATE_PATH: !Ref StateParameterPath
+          CONFIGURATION_SET: !Ref ConfigurationSetName
+          RETRY_WINDOW_END_SGT: !Ref RetryWindowEndSgt
+          HTTP_TIMEOUT_SECONDS: "20"
+          HTTP_MAX_ATTEMPTS: "3"
+          HTTP_BACKOFF_SECONDS: "2"
+          HTTP_DEADLINE_SECONDS: "30"
+          USER_AGENT: sap-patch-day-notifier/1 (aws-lambda; +https://support.sap.com)
+          DRY_RUN: "false"
+          LOG_LEVEL: INFO
+      Tags:
+        - Key: Application
+          Value: sap-security-patch-day-notifier
+
+  # ---------------------------------------------------------------- schedule
+  DeliveryRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "${FunctionName}-delivery"
+      Description: Second Tuesday retry window (16:00-20:30 Singapore time).
+      ScheduleExpression: !Ref DeliveryScheduleExpression
+      State: ENABLED
+      Targets:
+        - Id: delivery
+          Arn: !GetAtt NotifierFunction.Arn
+          Input: '{"run_mode":"delivery"}'
+
+  DeliveryRulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref NotifierFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt DeliveryRule.Arn
+
+  WatchdogRule:
+    Type: AWS::Events::Rule
+    Condition: WatchdogEnabled
+    Properties:
+      Name: !Sub "${FunctionName}-watchdog"
+      Description: Second Wednesday check that the month's notes were delivered.
+      ScheduleExpression: !Ref WatchdogScheduleExpression
+      State: ENABLED
+      Targets:
+        - Id: watchdog
+          Arn: !GetAtt NotifierFunction.Arn
+          Input: '{"run_mode":"watchdog"}'
+
+  WatchdogRulePermission:
+    Type: AWS::Lambda::Permission
+    Condition: WatchdogEnabled
+    Properties:
+      FunctionName: !Ref NotifierFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt WatchdogRule.Arn
+
+  # -------------------------------------------------------------- alerting
+  ErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${FunctionName}-errors"
+      AlarmDescription: The notifier raised an error; no assumption is made about delivery.
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Statistic: Sum
+      Period: 86400
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref NotifierFunction
+      AlarmActions:
+        - !Ref SnsTopic
+
+  ThrottlesAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${FunctionName}-throttles"
+      AlarmDescription: The notifier was throttled; a monthly run may have been skipped.
+      Namespace: AWS/Lambda
+      MetricName: Throttles
+      Statistic: Sum
+      Period: 86400
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref NotifierFunction
+      AlarmActions:
+        - !Ref SnsTopic
+
+Outputs:
+  FunctionName:
+    Description: Deployed Lambda function name.
+    Value: !Ref NotifierFunction
+  FunctionArn:
+    Description: Deployed Lambda function ARN.
+    Value: !GetAtt NotifierFunction.Arn
+  LogGroupName:
+    Description: CloudWatch log group holding the run history.
+    Value: !Ref FunctionLogGroup
+  FunctionRoleArn:
+    Description: Execution role ARN.
+    Value: !GetAtt FunctionRole.Arn
+  AlertTopicArn:
+    Description: SNS topic receiving alarm notifications.
+    Value: !Ref SnsTopic
+  DeliverySchedule:
+    Description: Delivery rule expression (UTC).
+    Value: !Ref DeliveryScheduleExpression
+  WatchdogSchedule:
+    Description: Watchdog rule expression (UTC).
+    Value: !If [WatchdogEnabled, !Ref WatchdogScheduleExpression, disabled]
+  ConfigParameterPath:
+    Description: SSM path holding the configuration.
+    Value: !Ref ConfigParameterPath
+  StateParameterPath:
+    Description: SSM path holding the delivery state.
+    Value: !Ref StateParameterPath
+  AlertSubscriptionEmail:
+    Description: Address subscribed to the alarm topic, when one was given.
+    Value: !If [HasAlarmEmail, !Ref AlarmNotificationEmail, "(none)"]

@@ -1,0 +1,6 @@
+# Runtime dependencies: none.
+#
+# The deployed artefact is `src/sap_patch_day/` and nothing else: the Python 3.12
+# Lambda runtime already provides boto3/botocore for Amazon SES and SSM. See
+# docs/addenda/0003-runtime-and-dependency-policy.md for why, and what it would
+# take to add one.
