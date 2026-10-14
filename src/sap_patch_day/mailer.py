@@ -11,7 +11,6 @@ import email.policy
 import logging
 from collections.abc import Mapping
 from email.message import EmailMessage
-from email.utils import formataddr
 from typing import Any, Protocol
 
 from .errors import DeliveryError
@@ -97,7 +96,10 @@ def _simple_content(request: SendRequest) -> Mapping[str, Any]:
 
 def _mime_bytes(request: SendRequest, attachment: Attachment) -> bytes:
     message = EmailMessage()
-    message["From"] = formataddr((request.sender, request.sender))
+    # A bare address: config validates the sender as one, and SES resolves the
+    # display name from the identity. `formataddr((sender, sender))` would print
+    # the address twice in the reader's mail client.
+    message["From"] = request.sender
     message["To"] = ", ".join(request.recipients)
     message["Subject"] = request.content.subject
     if request.reply_to:
