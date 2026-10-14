@@ -318,12 +318,17 @@ default.
 | Runtime | `python3.12`, `arm64`, 256 MB, 60 s timeout |
 | CloudWatch alarms | `<function>-errors`, `<function>-throttles` |
 
-CloudFormation parameters: `FunctionName`, `ArtifactBucket`, `ArtifactKey`,
+CloudFormation parameters (23): `FunctionName`, `ArtifactBucket`, `ArtifactKey`,
+`Runtime`, `Architecture`, `MemorySize`, `TimeoutSeconds`, `LogRetentionDays`,
 `SenderEmailAddress`, `RecipientEmails`, `ReplyToAddress`, `CreateSesIdentity`,
 `ConfigurationSetName`, `ConfigParameterPath`, `StateParameterPath`,
-`DeliveryScheduleExpression`, `WatchdogScheduleExpression`, `RetryWindowEndSgt`,
-`EnableWatchdog`, `AlarmNotificationEmails`, `MemorySize`, `TimeoutSeconds`,
-`LogRetentionDays`, `Architecture`, `Runtime`, `Tags`.
+`SubjectPrefix`, `AttachCsv`, `NotifyWhenNotPublished`,
+`DeliveryScheduleExpression`, `WatchdogScheduleExpression`, `EnableWatchdog`,
+`RetryWindowEndSgt`, `AlarmNotificationEmail`. Each one also appears in
+`scripts/awscli/00-env.sh` (or, for the ones the CLI path derives, in the
+snapshot the parity test reads);
+`tests/integration/test_deployment_parity.py` asserts the two lists agree and
+that this paragraph still matches the template.
 
 ## 11. Non-functional requirements
 

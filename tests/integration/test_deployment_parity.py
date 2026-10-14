@@ -371,6 +371,22 @@ def test_both_paths_configure_the_alarms_the_same_way(
         assert line in script, f"07-observability.sh drifted from the template: {line}"
 
 
+def test_the_spec_lists_the_parameters_the_template_declares(
+    parameters: Mapping[str, Mapping[str, object]],
+) -> None:
+    """The deployment contract in `docs/spec.md` §10 is documentation with teeth."""
+    text = (REPO_ROOT / "docs" / "spec.md").read_text(encoding="utf-8")
+    paragraph = re.search(r"CloudFormation parameters \(\d+\):(.*?)\n\n", text, re.DOTALL)
+    assert paragraph, "spec §10 no longer lists the CloudFormation parameters"
+    named = set(re.findall(r"`([A-Za-z][A-Za-z0-9]*)`", paragraph.group(1)))
+    assert named == set(parameters), (
+        "spec §10 and the template disagree: "
+        f"only in spec {sorted(named - set(parameters))}, "
+        f"only in template {sorted(set(parameters) - named)}"
+    )
+    assert f"({len(parameters)})" in text, "the count in the spec is stale"
+
+
 def test_the_cli_path_does_not_hardcode_a_resource_name(snapshot: dict[str, str]) -> None:
     """Every default lives in 00-env.sh; the other scripts use the variables."""
     derived = [
